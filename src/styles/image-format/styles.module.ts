@@ -1,0 +1,155 @@
+import { Colors } from "@/constants/Colors";
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: "row",
+    backgroundColor: Colors.softGray,
+    padding: 16,
+  },
+  header: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    right: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    zIndex: 2,
+  },
+  title: { fontSize: 16, fontWeight: "bold" },
+  sidebar: {
+    width: "10%",
+  },
+  main: {
+    flex: 1,
+    marginHorizontal: 10,
+    marginTop: 80,
+    backgroundColor: Colors.white,
+    borderRadius: 20,
+    padding: 24,
+  },
+  textInputHeader: { flexDirection: "row", justifyContent: "space-between" },
+  lastEdit: {
+    fontSize: 10,
+    color: Colors.fontLightGray,
+    marginBottom: 12,
+  },
+  pageInfo: {
+    fontSize: 10,
+    color: Colors.tertiaryGray,
+    fontWeight: "bold",
+  },
+  row: {
+    flexDirection: "row",
+    gap: 12,
+    flex: 1,
+  },
+  column: {
+    flexDirection: "column",
+    gap: 12,
+  },
+  imageBoxFormat: {
+    height: "50%",
+    backgroundColor: Colors.softPurple,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  imageBox: {
+    width: "50%",
+    height: "95%",
+    backgroundColor: Colors.softPurple,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  imageIcon: {
+    width: 30,
+    height: 30,
+    tintColor: Colors.mediumPurple,
+  },
+  storyText: {
+    fontSize: 30,
+    color: Colors.darkGray,
+    flex: 1,
+    height: "90%",
+    paddingHorizontal: 10,
+    justifyContent: "flex-start",
+  },
+  formatOption: {
+    backgroundColor: Colors.white,
+    borderRadius: 12,
+    padding: 6,
+    borderWidth: 2,
+    borderColor: "transparent",
+    width: 91,
+    height: 121,
+  },
+  selectedFormat: {
+    borderColor: Colors.lightBlue,
+  },
+  rightButtonContainer: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  back: {
+    fontSize: 16,
+    color: Colors.primaryGray,
+  },
+  formatList: {
+    width: "10%",
+    paddingTop: 80,
+    alignItems: "center",
+    gap: 14,
+  },
+  verticalLayout: {
+    flex: 1,
+  },
+  horizontalLayout: {
+    flex: 1,
+    flexDirection: "row",
+  },
+  gridLayout: {
+    flex: 1,
+    justifyContent: "space-between",
+  },
+  gridRow: {
+    flexDirection: "row",
+    flex: 1,
+  },
+  layoutImageBox: {
+    flex: 1,
+    backgroundColor: Colors.softPurple,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 4,
+    margin: 1,
+  },
+  textBox: {
+    flex: 1,
+    backgroundColor: Colors.baseGray,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 4,
+    margin: 1,
+  },
+  imageBoxSmall: {
+    flex: 1,
+    backgroundColor: Colors.softPurple,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 4,
+    margin: 1,
+  },
+  textBoxSmall: {
+    flex: 1,
+    backgroundColor: Colors.baseGray,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 4,
+    margin: 1,
+  },
+});

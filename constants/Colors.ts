@@ -1,0 +1,67 @@
+// /**
+//  * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
+//  * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+//  */
+
+export const Palette = {
+  white: "#FFFFFF",
+  black: "#000000",
+  gray: "#808080",
+  softGray: "#F6F6F6",
+  baseGray: "#C2D1DD",
+  darkGray: "#333333",
+  baseBackgroundColor: "#1CB0F6",
+  baseBlue: "#1CB0F6",
+  lightBlue: "#1CB0F6",
+  darkBlue: "#1899D6",
+  tintColor: "#0a7ea4",
+  lightYellow: "#FFD900",
+  baseYellow: "#FFD900",
+  backgroundPurple: "#DAA0FF",
+  purple: "#CE82FF",
+  softPurple: "#EDD1FF",
+  mediumPurple: "#A568CC",
+  softPink: "#FFB2B2",
+  lightGray: "#ECECEC",
+  primaryGray: "#4B4B4B",
+  secondaryGray: "#777777",
+  tertiaryGray: "#AFAFAF",
+  quaternaryGray: "#D9D9D9",
+  fontLightGray: "#7D838A",
+  silverMedium: "#92A8BA",
+  baseOrange: "#FF9600",
+};
+
+export const Colors = {
+  black: Palette.black,
+  background: Palette.white,
+  tint: Palette.tintColor,
+  icon: Palette.gray,
+  tabIconDefault: Palette.gray,
+  tabIconSelected: Palette.tintColor,
+  baseBackgroundColor: Palette.baseBackgroundColor,
+  baseBlue: Palette.baseBlue,
+  lightBlue: Palette.lightBlue,
+  darkBlue: Palette.darkBlue,
+  white: Palette.white,
+  softGray: Palette.softGray,
+  baseGray: Palette.baseGray,
+  darkGray: Palette.darkGray,
+  lightYellow: Palette.lightYellow,
+  baseYellow: Palette.baseYellow,
+  backgroundPurple: Palette.backgroundPurple,
+  purple: Palette.purple,
+  softPurple: Palette.softPurple,
+  mediumPurple: Palette.mediumPurple,
+  softPink: Palette.softPink,
+  lightGray: Palette.lightGray,
+  //icon
+  silverMedium: Palette.silverMedium,
+  // font
+  primaryGray: Palette.primaryGray,
+  secondaryGray: Palette.secondaryGray,
+  tertiaryGray: Palette.tertiaryGray,
+  quaternaryGray: Palette.quaternaryGray,
+  baseOrange: Palette.baseOrange,
+  fontLightGray: Palette.fontLightGray,
+};
