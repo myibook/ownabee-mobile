@@ -1,282 +1,218 @@
-import PageThumbnail from "@/components/PageThumbnail";
-import RoundedButton from "@/components/RoundedButton";
-import TopBar from "@/components/TopBar";
-import { Colors } from "@/constants/Colors";
-import { useAuth } from "@/context/auth";
-import { useStory } from "@/context/story";
-import { createPage, deletePage, savePagesToServer } from "@/services/service";
-import { styles } from "@/src/styles/story-editor/styles.module";
-import { PageData } from "@/types/audiobook";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { router, useLocalSearchParams } from "expo-router";
-import _ from "lodash";
-import { useEffect, useRef, useState } from "react";
-import {
-  Alert,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import PageThumbnail from '@/components/PageThumbnail';
+import RoundedButton from '@/components/RoundedButton';
+import TopBar from '@/components/TopBar';
+import { Colors } from '@/constants/Colors';
+import { useAuth } from '@/context/auth';
+import { useStory } from '@/context/story';
+import { deleteText, generateCharactersForEdition, saveTextsToServer } from '@/services/service';
+import { styles } from '@/src/styles/story-editor/styles.module';
+import { TextData } from '@/types/audiobook';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { router } from 'expo-router';
+import _ from 'lodash';
+import { useEffect, useRef, useState } from 'react';
+import { Alert, Keyboard, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 export default function StoryEditorScreen() {
   const {
-    pages,
-    setPages,
-    audioBookEditionId: globalAudioBookEditionId,
-    setAudioBookEditionId,
+    texts,
+    setTexts,
+    audioBookEditionId,
+    audioBook,
+    resetGrammarStatusOnEdit,
+    grammarStatus,
+    setCharacterUids,
   } = useStory();
 
   const { user } = useAuth();
-  const { audioBookEditionId, audioBookEditionFirstPageId, title } =
-    useLocalSearchParams<{
-      audioBookEditionId: string;
-      audioBookEditionFirstPageId: string;
-      title: string;
-    }>();
   const scrollRef = useRef<ScrollView>(null);
   const textInputRef = useRef<TextInput>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGeneratingCharacters, setIsGeneratingCharacters] = useState(false);
+  const [activeAction, setActiveAction] = useState<null | 'save' | 'done'>(null);
   const [aiVisible, setAiVisible] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [lastSavedData, setLastSavedData] = useState<PageData[]>([]);
+  const [lastSavedData, setLastSavedData] = useState<TextData[]>([]);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const saveData = async (currentData: PageData[]) => {
-    // 저장 스킵
-    if (_.isEqual(currentData, lastSavedData)) {
-      return;
-    }
-    // 중복 저장 방지
-    if (isSaving) {
-      return;
-    }
-    try {
-      setIsSaving(true);
-      await savePagesToServer(currentData);
-      setLastSavedData(_.cloneDeep(currentData));
-    } catch (e) {
-      console.error(
-        `story-editor : saveData 저장 실패 userId = ${user?.id} error = ${e}`
-      );
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  const saveDataAbortController = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    if (pages.length > 0 && !pages[0]?.id && audioBookEditionFirstPageId) {
-      const updatedPages = [...pages];
-      updatedPages[0] = {
-        ...updatedPages[0],
-        id: audioBookEditionFirstPageId,
-      };
-      setPages(updatedPages);
-    }
-  }, [pages, audioBookEditionFirstPageId]);
-
-  useEffect(() => {
-    if (audioBookEditionId) {
-      setAudioBookEditionId(audioBookEditionId);
-    }
-  }, [audioBookEditionId]);
+    const setFirstText = async () => {
+      try {
+        if (texts.length === 0) {
+          const data = await saveTextsToServer([{ audioBookEditionId, order: 0 }]);
+          setTexts(data);
+        }
+      } catch (error) {
+        console.error('첫 페이지 저장 실패:', error);
+      }
+    };
+    setFirstText();
+  }, []);
 
   useEffect(() => {
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
     }
-    // 디바운스 저장 실행, 글 작성 후 3초 후 호출
-    debounceTimer.current = setTimeout(() => {
-      saveData(pages);
-    }, 3000);
+
+    debounceTimer.current = setTimeout(() => saveData(texts), 3000);
 
     return () => {
-      if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current);
-      }
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
     };
-  }, [pages]);
+  }, [texts]);
 
-  const handleTextChange = (text: string) => {
-    const newPages = [...pages];
-    newPages[selectedIndex] = { ...newPages[selectedIndex], text };
-    setPages(newPages);
-  };
-
-  const addPage = async () => {
-    try {
-      const newPage = await createPage(
-        globalAudioBookEditionId,
-        pages.length + 1,
-        "imageTopTextBottom"
-      );
-
-      if (!newPage?.id) {
-        console.error("페이지 생성 실패");
-        return;
-      }
-
-      // 새 페이지를 id 포함해서 추가
-      const updatedPages = [
-        ...pages,
-        {
-          id: newPage.id,
-          text: "",
-          layout: newPage.layoutType,
-          pageNum: newPage.pageNum,
-        },
-      ];
-
-      setPages(updatedPages);
-      // 새로 생성된 페이지를 선택 상태로 반영
-      setSelectedIndex(pages.length);
-      // 썸네일 영역 아래로 스크롤
-      setTimeout(() => {
-        scrollRef.current?.scrollToEnd({ animated: true });
-      }, 100);
-    } catch (error) {
-      console.error("❌ addPage error:", error);
+  const handleTextChange = (newText: string) => {
+    const newTexts = [...texts];
+    newTexts[selectedIndex] = { ...newTexts[selectedIndex], originalText: newText };
+    setTexts(newTexts);
+    const selectedTextId = texts[selectedIndex].id!;
+    if (grammarStatus[selectedTextId]?.checked) {
+      resetGrammarStatusOnEdit(selectedTextId);
     }
   };
 
-  const saveBook = async (currentData: PageData[]) => {
+  const saveData = async (currentData: TextData[]) => {
+    try {
+      if (_.isEqual(currentData, lastSavedData)) return;
+      if (saveDataAbortController.current) {
+        saveDataAbortController.current.abort();
+      }
+      saveDataAbortController.current = new AbortController();
+      const signal = saveDataAbortController.current.signal;
+
+      await saveTextsToServer(currentData, signal);
+      setLastSavedData(_.cloneDeep(currentData));
+    } catch (_e) {
+      console.error(`story-editor : saveData 저장 실패 userId = ${user?.id} error = ${_e}`);
+    }
+  };
+
+  const addText = async () => {
+    try {
+      const [newText] = await saveTextsToServer([{ order: texts.length, audioBookEditionId }]);
+      const updatedTexts = [...texts, newText];
+      setTexts(updatedTexts);
+      setSelectedIndex(texts.length);
+      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+    } catch (error) {
+      console.error('❌ addText error:', error);
+    }
+  };
+
+  const saveBook = async (currentData: TextData[]) => {
     try {
       setIsSaving(true);
-      await savePagesToServer(currentData);
-      setLastSavedData(_.cloneDeep(currentData));
-      setPages([{ text: "", layout: "imageTopTextBottom", pageNum: 1 }]);
-      router.push({
-        pathname: "/(tabs)",
-      });
+      await saveData(currentData);
+      if (audioBookEditionId) {
+        generateCharactersForEdition({ audioBookEditionId })
+          .then(({ characterUids }) => setCharacterUids(characterUids))
+          .catch(_unused => {});
+      }
     } catch (e) {
-      console.error(
-        `story-editor : saveData 저장 실패 userId = ${user?.id} error = ${e}`
-      );
+      console.error(`story-editor : saveData 저장 실패 userId = ${user?.id} error = ${e}`);
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleDeletePage = async (indexToDelete: number) => {
-    if (pages.length === 1) {
-      Alert.alert("Every story needs at least one page.");
+  const saveAndSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+      await saveData(texts);
+      if (audioBookEditionId) {
+        generateCharactersForEdition({ audioBookEditionId })
+          .then(({ characterUids }) => setCharacterUids(characterUids))
+          .catch(_unused => {});
+      }
+      router.push({ pathname: '/writing-complete' });
+    } catch (e) {
+      console.error(`story-editor : saveData 저장 실패 userId = ${user?.id} error = ${e}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteText = async (indexToDelete: number) => {
+    if (texts.length === 1) {
+      Alert.alert('Every story needs at least one page.');
       return;
     }
-    const newPages = pages
-      .filter((_, i) => i !== indexToDelete)
-      .map((page, idx) => ({
-        ...page,
-        pageNum: idx + 1,
-      }));
+    const deletedText = texts[indexToDelete];
+    if (deletedText?.id) {
+      try {
+        await deleteText(deletedText.id);
+        const newTexts = texts
+          .filter((_, i) => i !== indexToDelete)
+          .map((text, idx) => ({ ...text, order: idx }));
+        setTexts(newTexts);
 
-    setPages(newPages);
-
-    // 선택 페이지 인덱스도 보정
-    if (selectedIndex >= newPages.length) {
-      setSelectedIndex(newPages.length - 1);
-    } else if (indexToDelete <= selectedIndex) {
-      setSelectedIndex(Math.max(0, selectedIndex - 1));
-    }
-
-    const deletedPage = pages[indexToDelete];
-    if (deletedPage?.id) {
-      await deletePage(deletedPage.id);
+        if (selectedIndex >= newTexts.length) {
+          setSelectedIndex(newTexts.length - 1);
+        } else if (indexToDelete <= selectedIndex) {
+          setSelectedIndex(Math.max(0, selectedIndex - 1));
+        }
+      } catch (error) {
+        Alert.alert('삭제 실패', '잠시 후 다시 시도해 주세요.');
+      }
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* 헤더 */}
       <TopBar
-        backHref="/(tabs)"
-        title={title}
+        onBackPress={() => router.dismissAll()}
+        title={audioBook!.title}
         rightButtons={[
           {
-            text: "I’m done writing",
-            href: "/writing-complete",
+            text: "I'm done writing",
             color: Colors.baseYellow,
             fontColor: Colors.black,
+            isLoading: isSubmitting,
+            onPress: () => saveAndSubmit(),
           },
           {
-            text: "Save",
+            text: 'Save',
             color: Colors.lightBlue,
             isLoading: isSaving,
-            onPress: async () => await saveBook(pages),
+            onPress: () => saveBook(texts),
           },
         ]}
       />
 
-      {/* page list */}
       <View style={styles.sidebar}>
-        <ScrollView
-          ref={scrollRef}
-          style={{ width: 120, padding: 12, marginTop: 70 }}
-          contentContainerStyle={{ alignItems: "center" }}
-        >
-          {pages.map((page, index) => (
-            <View
-              key={index}
-              style={{ position: "relative", marginBottom: 12 }}
-            >
-              {/* 썸네일 */}
+        <ScrollView ref={scrollRef} contentContainerStyle={styles.previewContainer}>
+          {texts.map((text, index) => (
+            <View key={index} style={styles.preview}>
               <PageThumbnail
-                content={page}
+                content={text}
                 isSelected={selectedIndex === index}
                 onPress={() => setSelectedIndex(index)}
               />
-
-              {/* 삭제 버튼 */}
-              <Pressable
-                onPress={() => handleDeletePage(index)}
-                style={{
-                  position: "absolute",
-                  top: 4,
-                  right: 4,
-                  backgroundColor: "#f66",
-                  borderRadius: 10,
-                  paddingHorizontal: 6,
-                  paddingVertical: 2,
-                  zIndex: 1,
-                }}
-              >
-                <Text style={{ color: Colors.white, fontSize: 12 }}>✕</Text>
+              <Pressable onPress={() => handleDeleteText(index)} style={styles.previewDelete}>
+                <Text style={styles.previewDeleteText}>✕</Text>
               </Pressable>
             </View>
           ))}
         </ScrollView>
         <View style={styles.newPageButton}>
-          <RoundedButton
-            text="＋ New Page"
-            onPress={addPage}
-            color={Colors.baseBlue}
-          />
+          <RoundedButton text="New Page" onPress={addText} color={Colors.baseBlue} />
         </View>
       </View>
 
-      {/* 본문 */}
       <View style={styles.editorContainer}>
         <View style={styles.textInputHeader}>
-          <Text style={styles.lastEdit}>
-            Last edited | {new Date().toLocaleString()}
-          </Text>
+          <Text style={styles.lastEdit}>Last edited | {new Date().toLocaleString()}</Text>
           <Text style={styles.pageInfo}>
-            Page {selectedIndex + 1} of {pages.length}
+            Page {selectedIndex + 1} of {texts.length}
           </Text>
         </View>
-        <View
-          style={{
-            height: 1,
-            backgroundColor: Colors.lightGray,
-            width: "100%",
-            marginTop: 10,
-            marginBottom: 8,
-          }}
-        />
+        <View style={styles.textInputContainer} />
         <TextInput
           ref={textInputRef}
-          value={pages[selectedIndex]?.text}
+          value={texts[selectedIndex]?.originalText}
           onChangeText={handleTextChange}
           style={styles.textInput}
           placeholder="Once upon a time, there lived a bunny named Harry..."
@@ -284,12 +220,21 @@ export default function StoryEditorScreen() {
           multiline
         />
       </View>
-      {/* AI Companion */}
       {aiVisible ? (
-        <View style={styles.aiPanel}>
+        <Pressable
+          style={styles.aiPanel}
+          onPress={() => {
+            Keyboard.dismiss();
+          }}
+        >
           <View style={styles.aiHeader}>
             <Text style={styles.aiTitle}>AI Companion</Text>
-            <Pressable onPress={() => setAiVisible(false)}>
+            <Pressable
+              onPress={() => {
+                Keyboard.dismiss();
+                setAiVisible(false);
+              }}
+            >
               <MaterialCommunityIcons
                 name="close-box-outline"
                 size={24}
@@ -298,17 +243,19 @@ export default function StoryEditorScreen() {
             </Pressable>
           </View>
           <Text style={styles.aiText}>
-            ✨ What Makes a Rhyming Book?{"\n"}A rhyming book is a story that
-            sounds like a song when you read it out loud...
+            ✨ What Makes a Rhyming Book?{'\n'}A rhyming book is a story that sounds like a song
+            when you read it out loud...
           </Text>
-        </View>
+        </Pressable>
       ) : (
-        <Pressable style={styles.infoIcon} onPress={() => setAiVisible(true)}>
-          <Ionicons
-            name="information-circle-outline"
-            size={24}
-            color={Colors.silverMedium}
-          />
+        <Pressable
+          style={styles.infoIcon}
+          onPress={() => {
+            Keyboard.dismiss();
+            setAiVisible(true);
+          }}
+        >
+          <Ionicons name="information-circle-outline" size={24} color={Colors.silverMedium} />
         </Pressable>
       )}
     </View>

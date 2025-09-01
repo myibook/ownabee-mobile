@@ -1,0 +1,110 @@
+import { StyleSheet } from 'react-native';
+
+export const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  },
+  resizeHandleBottomRight: {
+    position: 'absolute',
+    bottom: -10,
+    right: -10,
+    width: 20,
+    height: 20,
+    backgroundColor: '#007AFF',
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: 'white',
+    cursor: 'nwse-resize' as any,
+    zIndex: 10,
+  },
+
+  // Larger, invisible touch pad around the bottom-right handle
+  resizeHandleBottomRightPad: {
+    position: 'absolute',
+    bottom: -44,
+    right: -44,
+    width: 88,
+    height: 88,
+    zIndex: 9,
+  },
+
+  resizeHandleHorizontal: {
+    position: 'absolute',
+    top: '50%',
+    width: 10,
+    height: 40,
+    backgroundColor: '#007AFF',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: 'white',
+    transform: [{ translateY: -20 }],
+    cursor: 'ew-resize' as any,
+    zIndex: 10,
+  },
+  leftHandle: {
+    left: -5,
+  },
+  rightHandle: {
+    right: -5,
+  },
+  textView: {
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+  },
+  imagePlaceholder: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#CDB4DB',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#A28089',
+    borderStyle: 'dashed',
+  },
+  imagePlaceholderText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  rollbackButton: {
+    position: 'absolute',
+    top: -12,
+    left: -12,
+    width: 24,
+    height: 24,
+    backgroundColor: 'royalblue',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'white',
+    zIndex: 20,
+  },
+  rollbackButtonText: {
+    color: 'white',
+    fontSize: 12,
+  },
+  actionButton: {
+    position: 'absolute',
+    top: -12,
+    left: -12,
+    width: 24,
+    height: 24,
+    backgroundColor: 'royalblue',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'white',
+    zIndex: 20,
+  },
+  deleteButton: {
+    backgroundColor: 'tomato',
+  },
+  actionButtonText: {
+    color: 'white',
+    fontSize: 12,
+  },
+});

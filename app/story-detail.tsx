@@ -1,18 +1,20 @@
-import { fetchAudioBookDetail } from "@/services/service";
-import { styles } from "@/src/styles/story-detail/styles.module";
-import { AudioBookDetail } from "@/types/audiobook";
-import { Link, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import RoundedButton from '@/components/RoundedButton';
+import { Colors } from '@/constants/Colors';
+import { fetchAudioBookDetail } from '@/services/service';
+import { styles } from '@/src/styles/story-detail/styles.module';
+import { AudioBookDetail } from '@/types/audiobook';
+import { Link, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { Image, Text, View } from 'react-native';
 
-import VoiceSelectorModal from "./select-voice-modal";
+import VoiceSelectorModal from './select-voice-modal';
 
 export default function StoryDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [book, setBook] = useState<AudioBookDetail | null>(null);
 
   const [isSelectVoiceModalVisible, setIsSelectVoiceModalVisible] = useState<boolean>(false);
-  
+
   const onSelectVoiceModalClose = () => setIsSelectVoiceModalVisible(false);
   const onSelectVoiceModalOpen = () => setIsSelectVoiceModalVisible(true);
 
@@ -23,7 +25,7 @@ export default function StoryDetailScreen() {
         const detail = await fetchAudioBookDetail(id);
         setBook(detail);
       } catch (err) {
-        console.error("📕 Fetch error:", err);
+        console.error('📕 Fetch error:', err);
       }
     };
     fetchData();
@@ -33,8 +35,8 @@ export default function StoryDetailScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Link href={"/(tabs)/my-shelf"}>
-          <Text style={styles.back}>← Back</Text>
+        <Link href={'/(tabs)/my-shelf'}>
+          <Text style={styles.back}>{'< Back'}</Text>
         </Link>
       </View>
 
@@ -42,10 +44,7 @@ export default function StoryDetailScreen() {
       <View style={styles.content}>
         {/* Left: Book cover */}
         <View style={styles.coverWrapper}>
-          <Image
-            source={require("./../assets/images/zombie.png")}
-            style={styles.cover}
-          />
+          <Image source={{ uri: book?.coverPageUrl }} style={styles.cover} />
           <Text style={styles.pageCount}>Page 1/{book?.pageCount}</Text>
         </View>
 
@@ -64,20 +63,31 @@ export default function StoryDetailScreen() {
             <Text style={styles.label}>Summary</Text>
             <Text style={styles.text}>{book?.summary}</Text>
           </View>
-          <View>
-            <TouchableOpacity style={styles.readButton} onPress={onSelectVoiceModalOpen}>
-              <Text style={styles.readButtonText}>Start reading</Text>
-            </TouchableOpacity>
-            <Link style={styles.addButton} href={"/(tabs)/my-shelf"}>
-              <Text style={styles.addButtonText}>Add to list</Text>
-            </Link>
+          <View style={styles.buttonContainer}>
+            <RoundedButton
+              text="Start reading"
+              onPress={onSelectVoiceModalOpen}
+              color={Colors.baseBlue}
+              fontColor={Colors.white}
+              fullWidth
+            />
+            <RoundedButton
+              text="Add to list"
+              href="/(tabs)/my-shelf"
+              color={Colors.baseGray}
+              fontColor={Colors.primaryGray}
+              fullWidth
+            />
           </View>
         </View>
       </View>
-      <VoiceSelectorModal
-        isVisible={isSelectVoiceModalVisible}
-        onClose={onSelectVoiceModalClose}
-      />
+      {isSelectVoiceModalVisible && book?.editionId && (
+        <VoiceSelectorModal
+          editionId={book.editionId}
+          isVisible={isSelectVoiceModalVisible}
+          onClose={onSelectVoiceModalClose}
+        />
+      )}
     </View>
   );
 }

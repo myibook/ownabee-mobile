@@ -1,11 +1,11 @@
-import { Colors } from "@/constants/Colors";
-import { fetchAudioBooks } from "@/services/service";
-import { styles } from "@/src/styles/my-shelf/styles.module";
-import { AudioBook } from "@/types/audiobook";
-import { Feather } from "@expo/vector-icons";
-import { Link } from "expo-router";
-import { useEffect, useState } from "react";
-import { FlatList, ImageBackground, Text, View } from "react-native";
+import { Colors } from '@/constants/Colors';
+import { fetchAudioBooks } from '@/services/service';
+import { styles } from '@/src/styles/my-shelf/styles.module';
+import { AudioBook } from '@/types/audiobook';
+import { Feather } from '@expo/vector-icons';
+import { Link } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { FlatList, ImageBackground, Text, View } from 'react-native';
 
 export default function LibraryScreen() {
   const [audioBooks, setAudioBooks] = useState<AudioBook[]>([]);
@@ -22,31 +22,27 @@ export default function LibraryScreen() {
     return (
       <Link
         href={{
-          pathname: "/story-detail",
+          pathname: '/story-detail',
           params: { id: item.id },
         }}
         style={styles.card}
       >
         <View
           style={{
-            width: "100%",
-            height: "100%",
-            justifyContent: "center",
-            flexDirection: "column",
+            width: '100%',
+            height: '100%',
+            justifyContent: 'center',
+            flexDirection: 'column',
           }}
         >
           <View style={styles.cardContainer}>
             <ImageBackground
-              source={
-                item.cover
-                  ? { uri: item.cover }
-                  : require("../../assets/images/zombie.png")
-              }
+              source={{ uri: item.coverPageUrl }}
               style={styles.coverImageFull}
               imageStyle={styles.coverImageRounded}
             >
               <View style={styles.overlayBottom}>
-                <Text style={styles.pageBadge}>6 pages</Text>
+                <Text style={styles.pageBadge}>{item.pageCount} pages</Text>
                 <View style={styles.iconBadge}>
                   <Feather name="edit-3" size={14} color={Colors.white} />
                 </View>
@@ -75,18 +71,13 @@ export default function LibraryScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <View style={{}}>
-          <Link href="/(tabs)" style={styles.backButton}>
-            ← Back
-          </Link>
-        </View>
+        <View style={{}}></View>
         <View style={styles.userInfo}></View>
       </View>
 
       <ImageBackground
-        source={require("../../assets/images/libraryBackground.png")}
+        source={require('../../assets/images/libraryBackground.png')}
         style={styles.imageContainer}
-        resizeMode="none"
       >
         <View>
           <Text style={styles.title}>Library</Text>
@@ -94,7 +85,7 @@ export default function LibraryScreen() {
         <FlatList
           data={audioBooks}
           renderItem={renderBookCard}
-          keyExtractor={(item) => item.id}
+          keyExtractor={item => item.id}
           numColumns={4}
           contentContainerStyle={styles.gridContainer}
           columnWrapperStyle={styles.row}

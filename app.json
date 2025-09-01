@@ -1,18 +1,22 @@
 {
   "expo": {
     "name": "ownabee-mobile",
-    "slug": "ownabee-mobile",
+    "owner": "sorisoriai",
+    "slug": "myibook-ownabee",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "landscape",
     "icon": "./assets/images/icon.png",
     "scheme": "ownabee",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.juh22.ownabeemobile",
+      "bundleIdentifier": "com.myibook.ownabee",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSMicrophoneUsageDescription": "This app uses audio to play story narrations and does not record audio.",
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library so you can pick videos.",
+        "UIBackgroundModes": ["audio"]
       }
     },
     "android": {
@@ -21,12 +25,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.juh22.ownabeemobile"
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "server",
-      "favicon": "./assets/images/favicon.png"
+      "package": "com.myibook.ownabee"
     },
     "plugins": [
       "expo-router",
@@ -42,9 +41,7 @@
       [
         "expo-font",
         {
-          "fonts": [
-            "node_modules/@expo-google-fonts/inter/900Black/Inter_900Black.ttf"
-          ]
+          "fonts": ["node_modules/@expo-google-fonts/inter/900Black/Inter_900Black.ttf"]
         }
       ]
     ],
@@ -54,7 +51,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "db3ada68-adb8-479f-81c3-5f43f9bc30a1"
+        "projectId": "3f7f1b5f-a09d-4831-9b4c-ba97c7598188"
       }
     }
   }

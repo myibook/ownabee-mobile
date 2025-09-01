@@ -1,5 +1,5 @@
-import { Colors } from "@/constants/Colors";
-import { StyleSheet } from "react-native";
+import { Colors } from '@/constants/Colors';
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   container: {
@@ -16,8 +16,8 @@ export const styles = StyleSheet.create({
     color: Colors.darkGray,
   },
   content: {
-    flexDirection: "row",
-    height: "80%",
+    flexDirection: 'row',
+    height: '80%',
     marginTop: 20,
     //iOS shadow
     shadowColor: Colors.black,
@@ -32,8 +32,8 @@ export const styles = StyleSheet.create({
   },
   coverWrapper: {
     flex: 1.4,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: Colors.black,
     borderTopLeftRadius: 20,
     borderBottomLeftRadius: 20,
@@ -41,8 +41,8 @@ export const styles = StyleSheet.create({
     borderColor: Colors.black,
   },
   cover: {
-    width: "60%",
-    height: "80%",
+    width: '60%',
+    height: '80%',
     borderRadius: 15,
   },
   pageCount: {
@@ -60,42 +60,21 @@ export const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     borderBottomRightRadius: 20,
     backgroundColor: Colors.white,
-    justifyContent: "space-between",
+    justifyContent: 'space-between',
   },
   label: {
     color: Colors.silverMedium,
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 10,
   },
   text: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     color: Colors.primaryGray,
     marginBottom: 20,
   },
-  readButton: {
-    backgroundColor: Colors.baseBlue,
-    marginTop: 24,
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  readButtonText: {
-    color: Colors.white,
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  addButton: {
-    backgroundColor: Colors.baseGray,
-    marginTop: 12,
-    paddingVertical: 12,
-    borderRadius: 12,
-    textAlign: "center",
-  },
-  addButtonText: {
-    color: Colors.primaryGray,
-    fontWeight: "600",
-    fontSize: 15,
+  buttonContainer: {
+    gap: 8,
   },
 });

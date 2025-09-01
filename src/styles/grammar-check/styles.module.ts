@@ -1,89 +1,68 @@
-import { Colors } from "@/constants/Colors";
-import { StyleSheet } from "react-native";
+import { Colors } from '@/constants/Colors';
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
+    flexDirection: 'row',
     flex: 1,
-    backgroundColor: Colors.softGray,
     padding: 16,
   },
-  header: {
-    position: "absolute",
-    top: 40,
-    left: 20,
-    right: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    zIndex: 2,
+  innerContainer: {
+    flexDirection: 'row',
+    flex: 1,
   },
-  rightButtonContainer: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  back: {
-    fontSize: 16,
-    color: Colors.primaryGray,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: "bold",
+  sidebarScrollView: {
+    marginRight: 30,
+    width: 120,
+    padding: 12,
+    marginTop: 70,
   },
   editorContainer: {
-    flex: 3,
-    backgroundColor: Colors.white,
-    borderRadius: 20,
-    padding: 24,
-    marginTop: 80,
-  },
-  textInput: { flex: 1, fontSize: 24, textAlignVertical: "top" },
-  sidebar: {
-    width: "11%",
-  },
-  lastEdit: { fontSize: 10, color: Colors.fontLightGray },
-  grammarPanel: {
     flex: 1,
     backgroundColor: Colors.white,
     borderRadius: 20,
     padding: 24,
     marginTop: 80,
-    marginLeft: 16,
-    height: "75%",
   },
-  grammarTitle: {
-    fontWeight: "bold",
-    fontSize: 16,
-    marginBottom: 16,
+  lastEdit: {
+    fontSize: 10,
+    color: Colors.fontLightGray,
   },
-  grammarItem: {
-    marginBottom: 20,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderColor: Colors.lightGray,
-  },
-  grammarLabel: {
-    fontSize: 14,
-    color: Colors.primaryGray,
-    marginBottom: 4,
-  },
-  grammarWord: {
-    fontSize: 16,
+  editButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     marginBottom: 8,
   },
-  strike: {
-    textDecorationLine: "line-through",
-    color: "red",
+  editButton: {
+    backgroundColor: Colors.lightYellow,
+    padding: 6,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  green: {
-    color: "green",
-    fontWeight: "bold",
+  editButtonText: {
+    marginLeft: 6,
   },
-  grammarActions: {
-    flexDirection: "row",
-    gap: 10,
+  editCancelButton: {
+    padding: 8,
+    backgroundColor: Colors.silverMedium,
+    borderRadius: 5,
+    marginRight: 10,
   },
-  bold: {
-    fontWeight: "bold",
+  editCancelButtonText: {
+    color: Colors.white,
+    fontWeight: 600,
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 24,
+    textAlignVertical: 'top',
+    backgroundColor: Colors.white,
+    borderRadius: 8,
+    padding: 12,
+  },
+  fixUnderline: {
+    textDecorationLine: 'underline',
+    textDecorationColor: 'red',
   },
 });

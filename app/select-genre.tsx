@@ -1,49 +1,59 @@
-import RoundedButton from "@/components/RoundedButton";
-import { Colors } from "@/constants/Colors";
-import { createBook } from "@/services/service";
-import { styles } from "@/src/styles/select-genre/styles.module";
-import { router, useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import RoundedButton from '@/components/RoundedButton';
+import { Colors } from '@/constants/Colors';
+import { useStory } from '@/context/story';
+import { createBook } from '@/services/service';
+import { styles } from '@/src/styles/select-genre/styles.module';
+import { AudioBook } from '@/types/audiobook';
+import { router, useLocalSearchParams } from 'expo-router';
+import _ from 'lodash';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+
+// TODO: Possible keep list in the DB
 const GENRES = [
-  "Picture",
-  "Everyday life",
-  "Rhyming",
-  "Imaginative",
-  "Social-emotional",
-  "Interactive",
-  "Others",
+  'Picture',
+  'Everyday life',
+  'Rhyming',
+  'Imaginative',
+  'Social-emotional',
+  'Interactive',
+  'Others',
 ];
 
 export default function GenreSelectorScreen() {
+  const { setAudioBookEditionId, setAudioBook, clearData } = useStory();
   const [selected, setSelected] = useState<string | null>(null);
   const { title } = useLocalSearchParams<{ title: string }>();
+  const [isStarting, setIsStarting] = useState(false); // ★ 추가: 시작 버튼 로딩 상태
+
+  useEffect(() => {
+    clearData();
+  }, []);
 
   const handleStart = async () => {
+    if (!selected || isStarting) {
+      return;
+    }
+    setIsStarting(true);
     try {
       if (!selected) return;
-      const result = await createBook(title, selected!);
-      const audioBookEditionId = result.edition.id;
-      const audioBookEditionFirstPageId = result.page.id;
-      router.push({
-        pathname: "/story-editor",
-        params: { audioBookEditionId, audioBookEditionFirstPageId, title },
-      });
+      const createdAudioBook = await createBook(title, selected!);
+      setAudioBook(_.omit(createdAudioBook, 'editions') as AudioBook);
+      setAudioBookEditionId(createdAudioBook.editions[0].id);
+      router.push({ pathname: '/story-editor' });
     } catch (error) {
-      console.error("❌ 저장 실패 handleStart", error);
+      console.error('❌ 저장 실패 handleStart', error);
+    } finally {
+      setIsStarting(false);
     }
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}></View>
       <Text style={styles.title}>Select a genre</Text>
 
-      <ScrollView
-        contentContainerStyle={styles.genreList}
-        showsVerticalScrollIndicator={false}
-      >
-        {GENRES.map((genre) => {
+      <ScrollView contentContainerStyle={styles.genreList} showsVerticalScrollIndicator={false}>
+        {GENRES.map(genre => {
           const isSelected = selected === genre;
           return (
             <TouchableOpacity
@@ -51,12 +61,7 @@ export default function GenreSelectorScreen() {
               onPress={() => setSelected(genre)}
               style={[styles.genreButton, isSelected && styles.genreSelected]}
             >
-              <Text
-                style={[
-                  styles.genreText,
-                  isSelected && styles.genreTextSelected,
-                ]}
-              >
+              <Text style={[styles.genreText, isSelected && styles.genreTextSelected]}>
                 {genre}
               </Text>
             </TouchableOpacity>
@@ -69,6 +74,7 @@ export default function GenreSelectorScreen() {
         <RoundedButton
           text="Start writing"
           disabled={!selected}
+          isSaving={isStarting}
           onPress={handleStart}
           fontColor={Colors.black}
         />

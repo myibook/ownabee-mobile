@@ -1,45 +1,170 @@
-import { Colors } from "@/constants/Colors";
-import { StyleSheet } from "react-native";
+import { Colors } from '@/constants/Colors';
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "column",
+    flexDirection: 'column',
     backgroundColor: Colors.softGray,
   },
-  header: {
-    height: 100,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: Colors.white,
-    padding: 26,
+  mainContainer: {
+    flex: 1,
+    marginTop: 100,
+    alignItems: 'center',
+    paddingRight: 200,
   },
-  title: { fontSize: 16, fontWeight: "bold" },
   main: {
-    flex: 15,
-    height: "95%",
+    height: '90%',
+    aspectRatio: 210 / 297,
     marginLeft: 150,
-    marginTop: 20,
+    marginTop: 50,
     borderRadius: 20,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 4,
   },
-  rightButtonContainer: {
-    flexDirection: "row",
-    gap: 10,
+  imgListContentContainer: {
+    alignItems: 'center',
   },
-  back: {
-    fontSize: 16,
-    color: Colors.primaryGray,
-  },
-  formatList: {
+  imgList: {
+    position: 'absolute', // or 'fixed' depending on your needs
+    top: 40,
+    bottom: 40,
+    left: 0,
     paddingTop: 20,
-    alignItems: "center",
     gap: 14,
     padding: 30,
+    paddingLeft: 60,
   },
-  image: {
-    width: "100%",
-    height: "100%",
+  selectediImage: {
+    width: '100%',
+    height: '100%',
     borderRadius: 20,
+  },
+  imageChoice: {
+    width: 150,
+    height: 150,
+    borderRadius: 20,
+    marginTop: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 4,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: '#00000080',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  pickerContainer: {
+    alignSelf: 'center',
+    width: 300,
+    backgroundColor: '#eee',
+    padding: 20,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.34,
+    shadowRadius: 6.27,
+    elevation: 10,
+  },
+  picker: {
+    gap: 20,
+  },
+  panelStyle: {
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  clickSignalContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  sliderStyle: {
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  swatchesContainer: {
+    alignItems: 'center',
+    flexWrap: 'nowrap',
+    gap: 10,
+  },
+  swatchStyle: {
+    borderRadius: 20,
+    height: 30,
+    width: 30,
+    margin: 0,
+    marginBottom: 0,
+    marginHorizontal: 0,
+    marginVertical: 0,
+  },
+  colorPickerCloseButton: {
+    width: '45%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    height: 40,
+  },
+  colorPickerButtonContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  rightSidePanel: {
+    position: 'absolute',
+    top: 75,
+    right: 65,
+    width: 200,
+    flexDirection: 'column',
+  },
+  sideButton: {
+    backgroundColor: Colors.lightGray, // Use your primary color
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 1,
+    marginBottom: 25,
+  },
+  sideButtonText: {
+    color: Colors.black,
+    fontSize: 15,
+    fontWeight: '600',
+    letterSpacing: 0.5,
   },
 });

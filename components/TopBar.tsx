@@ -1,7 +1,7 @@
-import RoundedButton from "@/components/RoundedButton";
-import { styles } from "@/src/styles/components/top-bar/styles.module";
-import { Link } from "expo-router";
-import { Text, View } from "react-native";
+import RoundedButton from '@/components/RoundedButton';
+import { styles } from '@/src/styles/components/top-bar/styles.module';
+import { Link } from 'expo-router';
+import { Text, View } from 'react-native';
 
 interface HeaderButton {
   text: string;
@@ -14,32 +14,40 @@ interface HeaderButton {
 }
 
 interface TopBarProps {
-  backHref: string;
+  backHref?: string;
   backText?: string;
   title?: string;
+  titleColor?: string;
   rightButtons?: HeaderButton[];
+  onBackPress?: () => Promise<void> | void;
 }
 
 export default function TopBar({
   backHref,
-  backText = "← Back",
+  backText = '< Back',
   title,
+  titleColor,
   rightButtons = [],
+  onBackPress,
 }: TopBarProps) {
   return (
     <View style={styles.header}>
-      {backHref ? (
-        <Link href={backHref as any}>
-          <Text style={styles.back}>{backText}</Text>
-        </Link>
-      ) : (
-        <View style={{ width: 50 }} />
-      )}
-      <Text
-        style={styles.title}
-        numberOfLines={1}
-        ellipsizeMode="tail"
-      >
+      <View style={styles.backButtonContainer}>
+        {backHref || onBackPress ? (
+          onBackPress ? (
+            <Text style={styles.back} onPress={onBackPress}>
+              {backText}
+            </Text>
+          ) : (
+            <Link href={backHref as any}>
+              <Text style={styles.back}>{backText}</Text>
+            </Link>
+          )
+        ) : (
+          <View style={{ width: 50 }} />
+        )}
+      </View>
+      <Text style={[styles.title, { color: titleColor }]} numberOfLines={1} ellipsizeMode="tail">
         {title}
       </Text>
       <View style={styles.rightButtonContainer}>
@@ -69,4 +77,4 @@ export default function TopBar({
       </View>
     </View>
   );
-};
+}

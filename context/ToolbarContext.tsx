@@ -6,10 +6,10 @@
  *
  */
 
-import type { JSX } from "react";
+import type { JSX } from 'react';
 
-import { Colors } from "@/constants/Colors";
-import { ElementFormatType } from "lexical";
+import { Colors } from '@/constants/Colors';
+import { ElementFormatType } from 'lexical';
 import React, {
   createContext,
   ReactNode,
@@ -18,43 +18,43 @@ import React, {
   useEffect,
   useMemo,
   useState,
-} from "react";
+} from 'react';
 
 export const MIN_ALLOWED_FONT_SIZE = 8;
 export const MAX_ALLOWED_FONT_SIZE = 72;
 export const DEFAULT_FONT_SIZE = 15;
 
 const rootTypeToRootName = {
-  root: "Root",
-  table: "Table",
+  root: 'Root',
+  table: 'Table',
 };
 
 export const blockTypeToBlockName = {
-  bullet: "Bulleted List",
-  check: "Check List",
-  code: "Code Block",
-  h1: "Heading 1",
-  h2: "Heading 2",
-  h3: "Heading 3",
-  h4: "Heading 4",
-  h5: "Heading 5",
-  h6: "Heading 6",
-  number: "Numbered List",
-  paragraph: "Normal",
-  quote: "Quote",
+  bullet: 'Bulleted List',
+  check: 'Check List',
+  code: 'Code Block',
+  h1: 'Heading 1',
+  h2: 'Heading 2',
+  h3: 'Heading 3',
+  h4: 'Heading 4',
+  h5: 'Heading 5',
+  h6: 'Heading 6',
+  number: 'Numbered List',
+  paragraph: 'Normal',
+  quote: 'Quote',
 };
 
 //disable eslint sorting rule for quick reference to toolbar state
 /* eslint-disable sort-keys-fix/sort-keys-fix */
 const INITIAL_TOOLBAR_STATE = {
   bgColor: Colors.white,
-  blockType: "paragraph" as keyof typeof blockTypeToBlockName,
+  blockType: 'paragraph' as keyof typeof blockTypeToBlockName,
   canRedo: false,
   canUndo: false,
-  codeLanguage: "",
-  elementFormat: "left" as ElementFormatType,
+  codeLanguage: '',
+  elementFormat: 'left' as ElementFormatType,
   fontColor: Colors.black,
-  fontFamily: "Arial",
+  fontFamily: 'Arial',
   // Current font size in px
   fontSize: `${DEFAULT_FONT_SIZE}px`,
   // Font size input value - for controlled input
@@ -73,7 +73,7 @@ const INITIAL_TOOLBAR_STATE = {
   isLowercase: false,
   isUppercase: false,
   isCapitalize: false,
-  rootType: "root" as keyof typeof rootTypeToRootName,
+  rootType: 'root' as keyof typeof rootTypeToRootName,
   listStartNumber: null as number | null,
 };
 
@@ -85,25 +85,18 @@ type ToolbarStateValue<Key extends ToolbarStateKey> = ToolbarState[Key];
 
 type ContextShape = {
   toolbarState: ToolbarState;
-  updateToolbarState<Key extends ToolbarStateKey>(
-    key: Key,
-    value: ToolbarStateValue<Key>
-  ): void;
+  updateToolbarState<Key extends ToolbarStateKey>(key: Key, value: ToolbarStateValue<Key>): void;
 };
 
 const Context = createContext<ContextShape | undefined>(undefined);
 
-export const ToolbarContext = ({
-  children,
-}: {
-  children: ReactNode;
-}): JSX.Element => {
+export const ToolbarContext = ({ children }: { children: ReactNode }): JSX.Element => {
   const [toolbarState, setToolbarState] = useState(INITIAL_TOOLBAR_STATE);
   const selectionFontSize = toolbarState.fontSize;
 
   const updateToolbarState = useCallback(
     <Key extends ToolbarStateKey>(key: Key, value: ToolbarStateValue<Key>) => {
-      setToolbarState((prev) => ({
+      setToolbarState(prev => ({
         ...prev,
         [key]: value,
       }));
@@ -112,7 +105,7 @@ export const ToolbarContext = ({
   );
 
   useEffect(() => {
-    updateToolbarState("fontSizeInputValue", selectionFontSize.slice(0, -2));
+    updateToolbarState('fontSizeInputValue', selectionFontSize.slice(0, -2));
   }, [selectionFontSize, updateToolbarState]);
 
   const contextValue = useMemo(() => {
@@ -129,7 +122,7 @@ export const useToolbarState = () => {
   const context = useContext(Context);
 
   if (context === undefined) {
-    throw new Error("useToolbarState must be used within a ToolbarProvider");
+    throw new Error('useToolbarState must be used within a ToolbarProvider');
   }
 
   return context;

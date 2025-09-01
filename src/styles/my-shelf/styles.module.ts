@@ -1,14 +1,13 @@
-import { Colors } from "@/constants/Colors";
-import { Dimensions, StyleSheet } from "react-native";
+import { Colors } from '@/constants/Colors';
+import { Dimensions, StyleSheet } from 'react-native';
 
-const { width } = Dimensions.get("window");
+const { width } = Dimensions.get('window');
 
 const numColumns = 4;
 const gap = 16;
 const horizontalPadding = 70 * 2;
 
-const cardWidth =
-  (width - horizontalPadding - gap * numColumns - 1) / numColumns;
+const cardWidth = (width - horizontalPadding - gap * numColumns - 1) / numColumns;
 
 export const styles = StyleSheet.create({
   container: {
@@ -17,10 +16,10 @@ export const styles = StyleSheet.create({
     paddingTop: 20,
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
-    width: "100%",
+    width: '100%',
     padding: 10,
     height: 50,
   },
@@ -28,15 +27,17 @@ export const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: Colors.darkGray,
-    fontWeight: "500",
-    marginTop: 5,
+    fontWeight: '500',
+    marginTop: 7,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
     fontSize: 36,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     color: Colors.primaryGray,
     width: width,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: 30,
   },
   gridContainer: {
@@ -44,18 +45,19 @@ export const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   row: {
-    justifyContent: "flex-start",
+    justifyContent: 'flex-start',
     gap: 16,
     marginBottom: 24,
   },
   imageContainer: {
     padding: 50,
-    alignItems: "center",
-    justifyContent: "center",
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   cardContainer: {
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: 15,
     //iOS용 shadow
     shadowColor: Colors.black,
@@ -72,22 +74,22 @@ export const styles = StyleSheet.create({
   },
   card: {
     width: cardWidth,
-    aspectRatio: 0.75,
+    aspectRatio: 0.7,
     marginBottom: 30,
-    marginTop: 10,
+    marginTop: 30,
   },
   coverImageFull: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "flex-end", // 아래 정렬
+    width: '100%',
+    height: '100%',
+    justifyContent: 'flex-end', // 아래 정렬
   },
   overlayBottom: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 8,
     paddingVertical: 6,
-    backgroundColor: "rgba(255,255,255,0.8)",
+    backgroundColor: 'rgba(255,255,255,0.8)',
   },
   pageBadge: {
     backgroundColor: Colors.baseBlue,
@@ -96,14 +98,14 @@ export const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 10,
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   coverImageRounded: {
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
   },
   bookTitle: {
-    fontWeight: "600",
+    fontWeight: '600',
     fontSize: 13,
     marginBottom: 2,
   },
@@ -116,11 +118,11 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
     width: 28,
     height: 28,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   userInfo: {
-    alignItems: "center",
+    alignItems: 'center',
   },
   bookType: {
     fontSize: 12,

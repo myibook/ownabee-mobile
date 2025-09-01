@@ -1,5 +1,5 @@
-import * as jose from "jose";
-import { JWT_SECRET } from "./constants";
+import * as jose from 'jose';
+import { JWT_SECRET } from './constants';
 
 export type AuthUser = {
   id: string;
@@ -27,27 +27,21 @@ export function withAuth<T extends Response>(
       let token: string | null = null;
 
       // First, try to get token from Authorization header (for native apps)
-      const authHeader = req.headers.get("authorization");
-      if (authHeader && authHeader.startsWith("Bearer ")) {
-        token = authHeader.split(" ")[1];
+      const authHeader = req.headers.get('authorization');
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.split(' ')[1];
       }
 
       // If no token found in either place, return unauthorized
       if (!token) {
-        return Response.json(
-          { error: "Authentication required" },
-          { status: 401 }
-        );
+        return Response.json({ error: 'Authentication required' }, { status: 401 });
       }
 
       // Verify the JWT token
       const jwtSecret = JWT_SECRET;
 
       if (!jwtSecret) {
-        return Response.json(
-          { error: "Server misconfiguration" },
-          { status: 500 }
-        );
+        return Response.json({ error: 'Server misconfiguration' }, { status: 500 });
       }
 
       // Verify and decode the token
@@ -60,17 +54,14 @@ export function withAuth<T extends Response>(
       return await handler(req, decoded.payload as AuthUser);
     } catch (error) {
       if (error instanceof jose.errors.JWTExpired) {
-        console.error("Token expired:", error.reason);
-        return Response.json({ error: "Token expired" }, { status: 401 });
+        console.error('Token expired:', error.reason);
+        return Response.json({ error: 'Token expired' }, { status: 401 });
       } else if (error instanceof jose.errors.JWTInvalid) {
-        console.error("Invalid token:", error.message);
-        return Response.json({ error: "Invalid token" }, { status: 401 });
+        console.error('Invalid token:', error.message);
+        return Response.json({ error: 'Invalid token' }, { status: 401 });
       } else {
-        console.error("Auth error:", error);
-        return Response.json(
-          { error: "Authentication failed" },
-          { status: 500 }
-        );
+        console.error('Auth error:', error);
+        return Response.json({ error: 'Authentication failed' }, { status: 500 });
       }
     }
   };

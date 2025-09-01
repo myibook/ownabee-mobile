@@ -1,5 +1,5 @@
-import { Colors } from "@/constants/Colors";
-import { StyleSheet } from "react-native";
+import { Colors } from '@/constants/Colors';
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   container: {
@@ -10,43 +10,43 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.baseBackgroundColor,
   },
   header: {
-    marginTop: 70,
+    marginTop: 15,
   },
   title: {
     fontSize: 40,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     color: Colors.white,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: 32,
   },
   genreList: {
-    alignItems: "center",
+    alignItems: 'center',
     gap: 16,
   },
   genreButton: {
-    width: "30%",
+    width: '30%',
     paddingVertical: 20,
     borderRadius: 20,
     backgroundColor: Colors.darkBlue,
-    alignItems: "center",
+    alignItems: 'center',
   },
   genreSelected: {
-    backgroundColor: "transparent",
+    backgroundColor: 'transparent',
     borderWidth: 2,
     borderColor: Colors.white,
   },
   genreText: {
     color: Colors.white,
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   genreTextSelected: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   footer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: "auto",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 'auto',
     paddingHorizontal: 8,
   },
 });

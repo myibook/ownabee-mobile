@@ -1,25 +1,22 @@
-import { styles } from "@/src/styles/story-title-modal/styles.module";
-import { Link } from "expo-router";
-import { useState } from "react";
-import {
-  Modal,
-  Pressable,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { styles } from '@/src/styles/story-title-modal/styles.module';
+import { router } from 'expo-router';
+
+import { useEffect, useState } from 'react';
+import { Modal, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface StoryTitleModalProps {
   isVisible: boolean;
   onClose: () => void;
 }
 
-export default function StoryTitleModal({
-  isVisible,
-  onClose,
-}: StoryTitleModalProps) {
-  const [title, setTitle] = useState("");
+export default function StoryTitleModal({ isVisible, onClose }: StoryTitleModalProps) {
+  const [title, setTitle] = useState('');
+
+  useEffect(() => {
+    if (isVisible) {
+      setTitle('');
+    }
+  }, [isVisible]);
 
   return (
     <Modal animationType="fade" transparent visible={isVisible}>
@@ -42,17 +39,18 @@ export default function StoryTitleModal({
               <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
                 <Text style={styles.buttonText}>취소</Text>
               </TouchableOpacity>
-              <Link
-                href={{
-                  pathname: "/select-genre",
-                  params: { title },
-                }}
+              <TouchableOpacity
                 style={[styles.saveButton, { opacity: title.trim() ? 1 : 0.5 }]}
                 disabled={!title.trim()}
-                onPress={onClose}
+                onPress={() => {
+                  if (title.trim()) {
+                    router.push({ pathname: '/select-genre', params: { title } });
+                    onClose();
+                  }
+                }}
               >
                 <Text style={styles.buttonText}>시작</Text>
-              </Link>
+              </TouchableOpacity>
             </View>
           </View>
         </View>

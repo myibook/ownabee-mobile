@@ -1,24 +1,25 @@
-import { Colors } from "@/constants/Colors";
-import { StyleSheet } from "react-native";
+import { Colors } from '@/constants/Colors';
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
     backgroundColor: Colors.white,
     paddingBottom: 150,
     padding: 20,
   },
   header: {
-    width: "100%",
+    width: '100%',
     paddingTop: 16,
     paddingRight: 16,
     paddingBottom: 10,
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
+    gap: 8,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
     marginTop: 30,
   },
   createStory: {
@@ -35,15 +36,15 @@ export const styles = StyleSheet.create({
   },
   createStoryText: {
     color: Colors.white,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 16,
   },
   signOutButton: {
-    backgroundColor: "#FF4B4B",
+    backgroundColor: '#FF4B4B',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    justifyContent: "center",
+    justifyContent: 'center',
     shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,

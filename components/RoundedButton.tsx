@@ -1,16 +1,17 @@
-import { Colors } from "@/constants/Colors";
-import { styles } from "@/src/styles/components/rounded-button/styles.module";
-import { Link } from "expo-router";
-import React from "react";
-import { Pressable, Text, View } from "react-native";
-import SavingSpinner from "./ui/SavingSpinner";
+import { Colors } from '@/constants/Colors';
+import { styles } from '@/src/styles/components/rounded-button/styles.module';
+import { Link } from 'expo-router';
+import React from 'react';
+import { Pressable, Text, View } from 'react-native';
+import SavingSpinner from './ui/SavingSpinner';
 
 type Props = {
   text: string;
   href?: string;
-  onPress?: () => void;
+  onPress?: (event?: any) => void;
   color?: string;
   fontColor?: string;
+  fullWidth?: boolean;
   disabled?: boolean;
   isSaving?: boolean;
 };
@@ -20,6 +21,7 @@ const RoundedButton = ({
   onPress,
   color = Colors.white,
   fontColor = Colors.white,
+  fullWidth = false,
   disabled = false,
   isSaving = false,
 }: Props) => {
@@ -28,11 +30,12 @@ const RoundedButton = ({
       style={[
         styles.button,
         { backgroundColor: color },
+        fullWidth && styles.fullWidth,
         disabled && styles.disabled,
       ]}
     >
       {isSaving ? (
-        <SavingSpinner />
+        <SavingSpinner color={Colors.black} />
       ) : (
         <Text style={[styles.text, { color: fontColor }]}>{text}</Text>
       )}
@@ -48,7 +51,13 @@ const RoundedButton = ({
   }
 
   return (
-    <Pressable onPress={onPress} disabled={disabled}>
+    <Pressable
+      onPress={event => {
+        event.stopPropagation();
+        onPress?.(event);
+      }}
+      disabled={disabled}
+    >
       {content}
     </Pressable>
   );

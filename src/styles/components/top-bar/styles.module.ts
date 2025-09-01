@@ -1,21 +1,25 @@
-import { Colors } from "@/constants/Colors";
-import { StyleSheet } from "react-native";
+import { Colors } from '@/constants/Colors';
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   header: {
-    position: "absolute",
+    position: 'absolute',
     top: 40,
     left: 20,
     right: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     zIndex: 2,
   },
-  
+  backButtonContainer: {
+    flex: 1,
+  },
   rightButtonContainer: {
-    flexDirection: "row",
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     gap: 10,
+    flex: 1,
   },
   back: {
     fontSize: 16,
@@ -23,8 +27,8 @@ export const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
+    fontWeight: 'bold',
+    textAlign: 'center',
     flexShrink: 1,
   },
 });

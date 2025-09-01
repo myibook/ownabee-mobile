@@ -1,0 +1,110 @@
+import { Colors } from '@/constants/Colors';
+import { StyleSheet } from 'react-native';
+
+export const styles = StyleSheet.create({
+  controls: {
+    position: 'absolute',
+    margin: 'auto',
+    top: -60,
+    backgroundColor: Colors.lightGray,
+    padding: 12,
+    borderRadius: 12,
+    flexDirection: 'row',
+    height: 80,
+    left: 40,
+    right: 40,
+    marginHorizontal: 'auto',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: '#00000080',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  paletteButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginTop: 4,
+  },
+  picker: {
+    gap: 20,
+  },
+  pickerContainer: {
+    alignSelf: 'center',
+    width: 300,
+    backgroundColor: '#eee',
+    padding: 20,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.34,
+    shadowRadius: 6.27,
+    elevation: 10,
+  },
+  panelStyle: {
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  sliderStyle: {
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  previewTxt: {
+    color: '#020202FF',
+    fontFamily: 'Quicksand',
+  },
+  swatchesContainer: {
+    alignItems: 'center',
+    flexWrap: 'nowrap',
+    gap: 10,
+  },
+  swatchStyle: {
+    borderRadius: 20,
+    height: 30,
+    width: 30,
+    margin: 0,
+    marginBottom: 0,
+    marginHorizontal: 0,
+    marginVertical: 0,
+  },
+  dropdown: {
+    borderColor: Colors.primaryGray,
+    height: 40,
+  },
+  colorPickerCloseButton: {
+    width: '45%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    height: 40,
+  },
+  colorPickerButtonContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+});

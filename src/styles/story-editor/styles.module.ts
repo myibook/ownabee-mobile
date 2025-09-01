@@ -1,34 +1,43 @@
-import { Colors } from "@/constants/Colors";
-import { StyleSheet } from "react-native";
+import { Colors } from '@/constants/Colors';
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "row",
+    flexDirection: 'row',
     backgroundColor: Colors.softGray,
     padding: 16,
   },
-  header: {
-    position: "absolute",
-    top: 40,
-    left: 20,
-    right: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    zIndex: 2,
+  sidebar: {
+    width: '11%',
   },
-  rightButtonContainer: {
-    flexDirection: "row",
-    gap: 10,
+  previewContainer: {
+    width: 120,
+    padding: 12,
+    marginTop: 70,
+    alignItems: 'center',
   },
-  back: {
-    fontSize: 16,
-    color: Colors.primaryGray,
+  preview: {
+    position: 'relative',
+    marginBottom: 12,
   },
-  title: {
-    fontSize: 16,
-    fontWeight: "bold",
+  previewDelete: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    backgroundColor: '#f66',
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    zIndex: 1,
+  },
+  previewDeleteText: {
+    color: Colors.white,
+    fontSize: 12,
+  },
+  newPageButton: {
+    paddingVertical: 10,
+    alignSelf: 'flex-start',
   },
   editorContainer: {
     flex: 3,
@@ -37,8 +46,32 @@ export const styles = StyleSheet.create({
     padding: 24,
     marginTop: 80,
   },
-  textInputHeader: { flexDirection: "row", justifyContent: "space-between" },
-  textInput: { flex: 1, fontSize: 24, textAlignVertical: "top" },
+  textInputHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  lastEdit: {
+    fontSize: 12,
+    color: Colors.secondaryGray,
+    fontWeight: 'bold',
+  },
+  pageInfo: {
+    fontSize: 10,
+    color: Colors.tertiaryGray,
+    fontWeight: 'semibold',
+  },
+  textInputContainer: {
+    height: 1,
+    backgroundColor: Colors.lightGray,
+    width: '100%',
+    marginTop: 10,
+    marginBottom: 8,
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 24,
+    textAlignVertical: 'top',
+  },
   aiPanel: {
     marginLeft: 16,
     borderRadius: 20,
@@ -47,16 +80,14 @@ export const styles = StyleSheet.create({
     padding: 24,
     marginTop: 80,
   },
-  infoIcon: {
-    justifyContent: "flex-start",
-    marginTop: 90,
-    alignItems: "flex-end",
-    margin: 12,
-    paddingLeft: 8,
+  aiHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
   },
   aiTitle: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 12,
     color: Colors.primaryGray,
   },
@@ -64,22 +95,11 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.secondaryGray,
   },
-  sidebar: {
-    width: "11%",
-  },
-  newPageButton: {
-    paddingVertical: 10,
-    alignSelf: "flex-start",
-  },
-  lastEdit: { fontSize: 12, color: Colors.secondaryGray, fontWeight: "bold" },
-  pageInfo: {
-    fontSize: 10,
-    color: Colors.tertiaryGray,
-    fontWeight: "semibold",
-  },
-  aiHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 10,
+  infoIcon: {
+    justifyContent: 'flex-start',
+    marginTop: 90,
+    alignItems: 'flex-end',
+    margin: 12,
+    paddingLeft: 8,
   },
 });

@@ -1,39 +1,35 @@
-import { Tabs } from "expo-router";
-import React from "react";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { Tabs } from 'expo-router';
+import React from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { HapticTab } from "@/components/HapticTab";
-import TabBarBackground from "@/components/ui/TabBarBackground";
-import { Colors } from "@/constants/Colors";
-import { useAuth } from "@/context/auth";
-import {
-  Feather,
-  MaterialCommunityIcons,
-  MaterialIcons,
-} from "@expo/vector-icons";
-// import LoginForm from "../sign-in";
+import { HapticTab } from '@/components/HapticTab';
+import TabBarBackground from '@/components/ui/TabBarBackground';
+import { Colors } from '@/constants/Colors';
+import { useAuth } from '@/context/auth';
+import { Feather, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import LoginForm from '../sign-in';
 
 export default function TabLayout() {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator />
       </View>
     );
   }
 
   // Redirect to login screen if not authenticated
-  // if (!user) {
-  //   return <LoginForm />;
-  // }
+  if (!user) {
+    return <LoginForm />;
+  }
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors.backgroundPurple,
         headerShown: false,
-        tabBarLabelPosition: "below-icon",
+        tabBarLabelPosition: 'below-icon',
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: {
@@ -49,20 +45,16 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "eLibrary",
+          title: 'eLibrary',
           tabBarActiveTintColor: Colors.black,
           tabBarIcon: ({ color, focused }) => (
             <View
               style={[
                 styles.tabBarBackground,
-                { backgroundColor: focused ? Colors.baseBlue : "transparent" },
+                { backgroundColor: focused ? Colors.baseBlue : 'transparent' },
               ]}
             >
-              <Feather
-                name="home"
-                size={18}
-                color={focused ? "white" : color}
-              />
+              <Feather name="home" size={18} color={focused ? 'white' : color} />
             </View>
           ),
         }}
@@ -71,19 +63,19 @@ export default function TabLayout() {
       <Tabs.Screen
         name="my-shelf"
         options={{
-          title: "My Shelf",
+          title: 'My Shelf',
           tabBarActiveTintColor: Colors.black,
           tabBarIcon: ({ color, focused }) => (
             <View
               style={[
                 styles.tabBarBackground,
-                { backgroundColor: focused ? Colors.baseBlue : "transparent" },
+                { backgroundColor: focused ? Colors.baseBlue : 'transparent' },
               ]}
             >
               <MaterialCommunityIcons
                 name="bookshelf"
                 size={24}
-                color={focused ? "white" : color}
+                color={focused ? 'white' : color}
               />
             </View>
           ),
@@ -92,20 +84,16 @@ export default function TabLayout() {
       <Tabs.Screen
         name="voice"
         options={{
-          title: "Voice",
+          title: 'Voice',
           tabBarActiveTintColor: Colors.black,
           tabBarIcon: ({ color, focused }) => (
             <View
               style={[
                 styles.tabBarBackground,
-                { backgroundColor: focused ? Colors.baseBlue : "transparent" },
+                { backgroundColor: focused ? Colors.baseBlue : 'transparent' },
               ]}
             >
-              <MaterialIcons
-                name="multitrack-audio"
-                size={24}
-                color={focused ? "white" : color}
-              />
+              <MaterialIcons name="multitrack-audio" size={24} color={focused ? 'white' : color} />
             </View>
           ),
         }}
@@ -113,20 +101,16 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: "Setting",
+          title: 'Setting',
           tabBarActiveTintColor: Colors.black,
           tabBarIcon: ({ color, focused }) => (
             <View
               style={[
                 styles.tabBarBackground,
-                { backgroundColor: focused ? Colors.baseBlue : "transparent" },
+                { backgroundColor: focused ? Colors.baseBlue : 'transparent' },
               ]}
             >
-              <Feather
-                name="settings"
-                size={20}
-                color={focused ? "white" : color}
-              />
+              <Feather name="settings" size={20} color={focused ? 'white' : color} />
             </View>
           ),
         }}
@@ -140,7 +124,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     width: 40,
     height: 40,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
