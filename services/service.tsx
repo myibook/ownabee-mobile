@@ -98,24 +98,29 @@ export const createCover = async (audioBookEditionId: string, components: any, u
 export const generateCharactersForEdition = async (
   params: { storyText: string } | { audioBookEditionId: string }
 ) => {
-  const res = await axiosInstance.post(`/api/storyImages/generate-characters`, params);
+  const res = await axiosInstance.post(`/api/storyimages/generate-characters`, params);
   return res.data as { characterUids: string[]; characters: GeneratedCharacter[] };
 };
 
 export const generateImageWithCharacters = async (
   characterUids: string[],
   prompt: string,
-  opts?: { attachToPageId?: string; audioBookEditionId?: string; ratio?: string }
+  opts?: { attachToPageId?: string; audioBookEditionId?: string; ratio?: string; pageTextId?: string }
 ) => {
-  const res = await axiosInstance.post(`/api/storyImages/generate-image-with-characters`, {
+  const res = await axiosInstance.post(`/api/storyimages/generate-image-with-characters`, {
     characterUids,
     prompt,
     ...opts,
   });
-  return res.data as { sceneImageUrl: string; pageImageId?: string; editionImageId?: string };
+  return res.data as { sceneImageUrl: string; pageImageId?: string; pageTextImageId?: string; editionImageId?: string };
 };
 
 export const fetchEditionImages = async (editionId: string) => {
-  const res = await axiosInstance.get(`/api/storyImages/editions/${editionId}/images`);
+  const res = await axiosInstance.get(`/api/storyimages/editions/${editionId}/images`);
+  return res.data as { id: string; url: string; order: number }[];
+};
+
+export const fetchPageTextImages = async (pageTextId: string) => {
+  const res = await axiosInstance.get(`/api/storyimages/page-texts/${pageTextId}/images`);
   return res.data as { id: string; url: string; order: number }[];
 };

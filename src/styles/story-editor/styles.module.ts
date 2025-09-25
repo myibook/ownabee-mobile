@@ -15,6 +15,8 @@ export const styles = StyleSheet.create({
     width: 120,
     padding: 12,
     marginTop: 70,
+  },
+  previewContentContainer: {
     alignItems: 'center',
   },
   preview: {
@@ -23,8 +25,8 @@ export const styles = StyleSheet.create({
   },
   previewDelete: {
     position: 'absolute',
-    top: 4,
-    right: 4,
+    top: 6,
+    right: 6,
     backgroundColor: '#f66',
     borderRadius: 10,
     paddingHorizontal: 6,
@@ -36,8 +38,13 @@ export const styles = StyleSheet.create({
     fontSize: 12,
   },
   newPageButton: {
-    paddingVertical: 10,
-    alignSelf: 'flex-start',
+    width: 100,
+    height: 140,
+    backgroundColor: Colors.baseBlue,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   editorContainer: {
     flex: 3,

@@ -41,6 +41,7 @@ export default function TabLayout() {
           fontSize: 12,
         },
       }}
+      safeAreaInsets={{ top: 0, bottom: 0 }} // prevent double safe area padding
     >
       <Tabs.Screen
         name="index"

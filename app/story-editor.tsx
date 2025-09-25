@@ -7,12 +7,12 @@ import { useStory } from '@/context/story';
 import { deleteText, generateCharactersForEdition, saveTextsToServer } from '@/services/service';
 import { styles } from '@/src/styles/story-editor/styles.module';
 import { TextData } from '@/types/audiobook';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { AntDesign, Ionicons} from '@expo/vector-icons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { router } from 'expo-router';
 import _ from 'lodash';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Keyboard, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Alert, Keyboard, Pressable, FlatList, Text, TextInput, View, KeyboardAvoidingView, Platform } from 'react-native';
 
 export default function StoryEditorScreen() {
   const {
@@ -26,7 +26,7 @@ export default function StoryEditorScreen() {
   } = useStory();
 
   const { user } = useAuth();
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<FlatList>(null);
   const textInputRef = useRef<TextInput>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,6 +35,7 @@ export default function StoryEditorScreen() {
   const [aiVisible, setAiVisible] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [lastSavedData, setLastSavedData] = useState<TextData[]>([]);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveDataAbortController = useRef<AbortController | null>(null);
 
@@ -160,6 +161,37 @@ export default function StoryEditorScreen() {
     }
   };
 
+  const handleThumbnailPress = (index: number) => {
+    setSelectedIndex(index);
+    setTimeout(() => scrollRef.current?.scrollToIndex({ index, animated: true }), 100);
+  }
+
+  const handleTextInputFocus = () => {
+    setTimeout(() => {
+      scrollRef.current?.scrollToIndex({
+        index: selectedIndex,
+        animated: true,
+        viewPosition: 0,
+      });
+    }, 100);
+  }
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener(
+      'keyboardDidShow',
+      () => setIsKeyboardVisible(true)
+    );
+    const hideSubscription = Keyboard.addListener(
+      'keyboardDidHide',
+      () => setIsKeyboardVisible(false)
+    );
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
   return (
     <View style={styles.container}>
       <TopBar
@@ -182,25 +214,46 @@ export default function StoryEditorScreen() {
         ]}
       />
 
-      <View style={styles.sidebar}>
-        <ScrollView ref={scrollRef} contentContainerStyle={styles.previewContainer}>
-          {texts.map((text, index) => (
-            <View key={index} style={styles.preview}>
-              <PageThumbnail
-                content={text}
-                isSelected={selectedIndex === index}
-                onPress={() => setSelectedIndex(index)}
-              />
-              <Pressable onPress={() => handleDeleteText(index)} style={styles.previewDelete}>
-                <Text style={styles.previewDeleteText}>✕</Text>
-              </Pressable>
-            </View>
-          ))}
-        </ScrollView>
-        <View style={styles.newPageButton}>
-          <RoundedButton text="New Page" onPress={addText} color={Colors.baseBlue} />
-        </View>
-      </View>
+      <KeyboardAvoidingView
+        style={[styles.sidebar, { paddingBottom: isKeyboardVisible ? 24 : 0 }]}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <FlatList
+          ref={scrollRef}
+          data={[...texts, { id: "add-button" }]}
+          keyExtractor={(item) => item.id}
+          style={styles.previewContainer}
+          contentContainerStyle={styles.previewContentContainer}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          renderItem={({ item, index }) => {
+            if (item.id === 'add-button') {
+              return (
+                <Pressable
+                  key="add-button"
+                  style={styles.newPageButton}
+                  onPress={addText}
+                >
+                  <AntDesign name="plus" size={24} color={Colors.white} />
+                </Pressable>
+              );
+            }
+            
+            return (
+              <View key={index} style={styles.preview}>
+                <PageThumbnail
+                  content={item}
+                  isSelected={selectedIndex === index}
+                  onPress={() => handleThumbnailPress(index)}
+                />
+                <Pressable onPress={() => handleDeleteText(index)} style={styles.previewDelete}>
+                  <Ionicons name="close" size={16} color={Colors.white} />
+                </Pressable>
+              </View>
+            );
+          }}
+        />
+      </KeyboardAvoidingView>
 
       <View style={styles.editorContainer}>
         <View style={styles.textInputHeader}>
@@ -214,6 +267,7 @@ export default function StoryEditorScreen() {
           ref={textInputRef}
           value={texts[selectedIndex]?.originalText}
           onChangeText={handleTextChange}
+          onFocus={handleTextInputFocus}
           style={styles.textInput}
           placeholder="Once upon a time, there lived a bunny named Harry..."
           placeholderTextColor={Colors.quaternaryGray}

@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
 const THUMBNAIL_SIZE = {
   width: 80,
@@ -25,9 +26,6 @@ export const styles = StyleSheet.create({
     marginBottom: 30,
     position: 'relative',
   },
-  selectedThumbnail: {
-    borderColor: '#007AFF',
-  },
   pageNumber: {
     position: 'absolute',
     bottom: -20,
@@ -36,22 +34,8 @@ export const styles = StyleSheet.create({
     color: '#495057',
   },
   addButton: {
-    width: 50,
-    height: 50,
-    backgroundColor: '#007AFF',
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2.0,
-    elevation: 3,
-  },
-  addButtonText: {
-    color: 'white',
-    fontSize: 28,
-    lineHeight: 30,
+    width: THUMBNAIL_SIZE.width,
+    height: THUMBNAIL_SIZE.height,
+    backgroundColor: Colors.baseBlue,
   },
 });

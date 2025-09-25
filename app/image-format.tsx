@@ -1,3 +1,4 @@
+import CanvasDragOverlay from '@/components/CanvasDragOverlay';
 import ImageGenerationModal from '@/components/ImageGenerationModal';
 import TopBar from '@/components/TopBar';
 import { Colors } from '@/constants/Colors';
@@ -9,7 +10,6 @@ import { router } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
-  Button,
   Image,
   Modal,
   Text,
@@ -27,6 +27,7 @@ import ColorPicker, {
   PreviewText,
   Swatches,
 } from 'reanimated-color-picker';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import DraggableItem from '../components/DraggableItem';
 import PageThumbnailList from '../components/PageThumbnailList';
 import Sidebar from '../components/Sidebar';
@@ -49,6 +50,8 @@ const customSwatches = new Array(6).fill('#fff').map(() => colorKit.randomRgbCol
 export default function ImageFormatScreen() {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [isModalVisible, setModalVisible] = useState(false);
+  const [showDragOverlay, setShowDragOverlay] = useState(false);
+  const [showSnapOverlay, setShowSnapOverlay] = useState(false);
   const [sidebarTexts, setSidebarTexts] = useState<TextData[]>([]);
   const [allOriginalTexts, setAllOriginalTexts] = useState<TextData[]>([]);
 
@@ -88,7 +91,7 @@ export default function ImageFormatScreen() {
           audioBookEditionId: t.audioBookEditionId,
           order: t.order,
           image: t.image,
-          content: t.grammarCorrectedText?.trim() ? t.grammarCorrectedText : (t.originalText ?? ''),
+          content: t.originalText ?? '',
         }));
 
       const filteredTexts = mappedTexts.filter(t => !existingTextIds.includes(t.id!));
@@ -206,7 +209,7 @@ export default function ImageFormatScreen() {
       }
     }
 
-    const initialTextWidthRatio = 0.80; 
+    const initialTextWidthRatio = 0.8;
 
     addTextAndImagePairToCurrentPage(
       {
@@ -238,8 +241,37 @@ export default function ImageFormatScreen() {
   const changeAspectRatio = (ratioKey: keyof typeof ASPECT_RATIOS) => {
     if (!selectedItemId) return;
     const newRatio = ASPECT_RATIOS[ratioKey];
-    // Use the updateItemOnCurrentPage function from Context
-    updateItemOnCurrentPage(selectedItemId, { aspectRatio: newRatio });
+    
+    // if changing to 9:16 and new height exceeds canvas height, adjust width instead
+    const currentItem = selectedItem as CanvasImageItem;
+    const newHeight = currentItem.width / newRatio;
+    if (newRatio === 9 / 16 && newHeight > 1) {
+      const newWidth = currentItem.width * newRatio;
+      updateItemOnCurrentPage(selectedItemId, {
+        aspectRatio: newRatio,
+        width: newWidth,
+        height: undefined,
+      });
+    } else {
+      updateItemOnCurrentPage(selectedItemId, { 
+        aspectRatio: newRatio,
+        height: undefined,
+      });
+    }
+  };
+
+  // allow freeform resizing
+  const removeAspectRatioConstraint = () => {
+    if (!selectedItemId || selectedItem?.type !== 'image') return;
+    
+    // width and height are relative to canvas so we need to calculate
+    // height based on current width and aspect ratio and canvas aspect ratio
+    const currentItem = selectedItem as CanvasImageItem;
+    const newHeight = currentItem.width / (currentItem.aspectRatio! / CANVAS_ASPECT_RATIO);
+    updateItemOnCurrentPage(selectedItemId, { 
+      aspectRatio: undefined,
+      height: newHeight,
+    });
   };
 
   // Logic to find the currently selected item
@@ -267,6 +299,8 @@ export default function ImageFormatScreen() {
 
     // Find the closest aspect ratio match
     const aspectRatio = (item as CanvasImageItem).aspectRatio;
+    if (!aspectRatio) return '1:1';
+
     const ratioKey = Object.keys(ASPECT_RATIOS).find(
       key => Math.abs(ASPECT_RATIOS[key as keyof typeof ASPECT_RATIOS] - aspectRatio) < 0.01
     );
@@ -379,7 +413,7 @@ export default function ImageFormatScreen() {
 
         <View style={styles.pageContainer}>
           {/* Render page thumbnail list component */}
-          <PageThumbnailList />
+          <PageThumbnailList canvasWidth={canvasWidth} />
           <View style={styles.mainContent}>
             <View style={[styles.canvas, { width: canvasWidth, height: canvasHeight }]}>
               {currentPage?.items.map(item => {
@@ -396,14 +430,13 @@ export default function ImageFormatScreen() {
                       originalWidth={item.originalWidth * canvasWidth}
                       initialHeight={item.height * canvasHeight}
                       onResizeEnd={updates => {
-                        const relativeUpdates = {
-                          ...updates,
-                          width: updates.width ? updates.width / canvasWidth : undefined,
-                          height: updates.height ? updates.height / canvasHeight : undefined,
-                          originalWidth: updates.originalWidth
-                            ? updates.originalWidth / canvasWidth
-                            : undefined,
-                        };
+                        const relativeUpdates: any = {};
+                        if (updates.x !== undefined) relativeUpdates.x = updates.x / canvasWidth;
+                        if (updates.y !== undefined) relativeUpdates.y = updates.y / canvasHeight;
+                        if (updates.width !== undefined) relativeUpdates.width = updates.width / canvasWidth;
+                        if (updates.height !== undefined) relativeUpdates.height = updates.height / canvasHeight;
+                        if (updates.originalWidth !== undefined) relativeUpdates.originalWidth = updates.originalWidth / canvasWidth;
+                        if (updates.baseFontSize !== undefined) relativeUpdates.baseFontSize = updates.baseFontSize;
                         updateItemOnCurrentPage(item.id, relativeUpdates);
                       }}
                       baseFontSize={item.baseFontSize}
@@ -424,6 +457,7 @@ export default function ImageFormatScreen() {
                       fontStyle={item.fontStyle}
                       color={item.color}
                       backgroundColor={item.backgroundColor}
+                      setShowSnapOverlay={setShowSnapOverlay}
                     />
                   );
                 }
@@ -438,6 +472,7 @@ export default function ImageFormatScreen() {
                       initialX={item.x * canvasWidth}
                       initialY={item.y * canvasHeight}
                       initialWidth={item.width * canvasWidth}
+                      initialHeight={item.height ? item.height * canvasHeight : undefined}
                       aspectRatio={item.aspectRatio}
                       onDragEnd={({ x, y }) =>
                         updateItemOnCurrentPage(item.id, {
@@ -445,11 +480,16 @@ export default function ImageFormatScreen() {
                           y: y / canvasHeight,
                         })
                       }
-                      onResizeEnd={updates =>
-                        updateItemOnCurrentPage(item.id, {
-                          width: updates.width ? updates.width / canvasWidth : undefined,
-                        })
-                      }
+                      onResizeEnd={updates => {
+                        const relativeUpdates: any = {};
+                        if (updates.x !== undefined) relativeUpdates.x = updates.x / canvasWidth;
+                        if (updates.y !== undefined) relativeUpdates.y = updates.y / canvasHeight;
+                        if (updates.width) relativeUpdates.width = updates.width / canvasWidth;
+                        if (updates.height && !item.aspectRatio) {
+                          relativeUpdates.height = updates.height / canvasHeight;
+                        }
+                        updateItemOnCurrentPage(item.id, relativeUpdates);
+                      }}
                       onImagePress={() => {
                         setSelectedItemId(item.id);
                         setModalVisible(true);
@@ -460,14 +500,28 @@ export default function ImageFormatScreen() {
                       canvasWidth={canvasWidth}
                       canvasHeight={canvasHeight}
                       onDeleteImagePress={() => removeImageFromCurrentPage(item.id)}
+                      setShowSnapOverlay={setShowSnapOverlay}
                     />
                   );
                 }
                 return null;
               })}
+              {/* overlay shown when dragging text onto canvas */}
+              <CanvasDragOverlay
+                visible={showDragOverlay}
+                canvasWidth={canvasWidth}
+                canvasHeight={canvasHeight}
+              />
+              {showSnapOverlay && (
+                <View style={styles.snapOverlay} />
+              )}
             </View>
           </View>
-          <Sidebar texts={sidebarTexts} onAddTextToCanvas={handleAddTextToCanvas} />
+          <Sidebar
+            texts={sidebarTexts}
+            onAddTextToCanvas={handleAddTextToCanvas}
+            setShowDragOverlay={setShowDragOverlay}
+          />
 
           {selectedItem && selectedItem.type === 'text' && (
             <View style={styles.controls}>
@@ -590,19 +644,38 @@ export default function ImageFormatScreen() {
           {selectedItem && selectedItem.type === 'image' && (
             <View style={styles.controls}>
               <Text style={styles.controlTitle}>Aspect Ratio:</Text>
-              {Object.keys(ASPECT_RATIOS).map(key => (
-                <Button
-                  key={key}
-                  title={key}
-                  onPress={() => changeAspectRatio(key as keyof typeof ASPECT_RATIOS)}
-                  color={
-                    (selectedItem as CanvasImageItem).aspectRatio ===
-                    ASPECT_RATIOS[key as keyof typeof ASPECT_RATIOS]
-                      ? '#007AFF'
-                      : '#8E8E93'
+              {Object.keys(ASPECT_RATIOS).map(key => {
+                const isActive = (selectedItem as CanvasImageItem).aspectRatio === ASPECT_RATIOS[key as keyof typeof ASPECT_RATIOS];
+                return (
+                  <TouchableOpacity
+                    key={key}
+                    onPress={() => {
+                      if (!isActive) {
+                        changeAspectRatio(key as keyof typeof ASPECT_RATIOS);
+                      }
+                    }}
+                    style={styles.controlButton}
+                  >
+                    <Text style={{ color: isActive ? '#007AFF' : '#8E8E93' }}>{key}</Text>
+                  </TouchableOpacity>
+                )
+              })}
+              <View style={styles.controlDivider} />
+              <TouchableOpacity
+                key="free"
+                onPress={() => {
+                  if ((selectedItem as CanvasImageItem).aspectRatio !== undefined) {
+                    removeAspectRatioConstraint();
                   }
+                }}
+                style={styles.controlButton}
+              >
+                <MaterialCommunityIcons
+                  name="arrow-expand-all"
+                  size={20}
+                  color={(selectedItem as CanvasImageItem).aspectRatio === undefined ? '#007AFF' : '#8E8E93'}
                 />
-              ))}
+              </TouchableOpacity>
             </View>
           )}
           <ImageGenerationModal
@@ -622,6 +695,7 @@ export default function ImageFormatScreen() {
             audioBookEditionId={audioBookEditionId}
             imageItemId={selectedItem?.type === 'image' ? selectedItem.id : undefined}
             initialRatio={selectedItem ? getGenerationRatio(selectedItem) : '1:1'}
+            audioBookPageTextId={selectedOriginalTextId}
             onPick={uri => {
               if (!selectedItemId) return;
               updateItemOnCurrentPage(selectedItemId, { imageUrl: uri });

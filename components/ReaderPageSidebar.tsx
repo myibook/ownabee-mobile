@@ -1,13 +1,15 @@
-import React from 'react';
-import { Pressable, ScrollView, View, Text } from 'react-native';
 import ReaderPagePreview from '@/components/ReaderPagePreview';
-import { Image as ExpoImage } from 'expo-image';
 import { styles } from '@/src/styles/components/reader-page-sidebar/styles.module';
 import { Page } from '@/types/audiobook';
 import { Colors } from '@/constants/Colors';
+import { getCachedImageSource } from '@/utils/image';
+import React from 'react';
+import { Pressable, ScrollView, View } from 'react-native';
+import { Image } from 'expo-image';
 
 type Props = {
   pages: Page[];
+  canvasWidth: number;
   selectedIndex: 'cover' | number | null;
   onPressIndex: (i: 'cover' | number) => void;
   imageSource: any;
@@ -36,19 +38,17 @@ function CoverThumbnail({
         isSelected && { outlineColor: Colors.lightBlue, outlineWidth: 3 },
       ]}
     >
-      <ExpoImage
-        source={imageSource}
+      <Image
+        source={getCachedImageSource(imageSource)}
         style={styles.coverImage}
+        transition={250}
         contentFit="cover"
-        transition={0}
-        recyclingKey="cover"
-        cachePolicy="memory-disk"
       />
     </View>
   );
 }
 
-function SidebarInner({ pages, selectedIndex, onPressIndex, imageSource }: Props) {
+function SidebarInner({ pages, canvasWidth, selectedIndex, onPressIndex, imageSource }: Props) {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -66,7 +66,11 @@ function SidebarInner({ pages, selectedIndex, onPressIndex, imageSource }: Props
             ]}
             onPress={() => onPressIndex(index)}
           >
-            <ReaderPagePreview page={page} size={THUMBNAIL_SIZE} />
+            <ReaderPagePreview
+              page={page}
+              size={THUMBNAIL_SIZE}
+              canvasWidth={canvasWidth}
+            />
           </Pressable>
         ))}
       </ScrollView>

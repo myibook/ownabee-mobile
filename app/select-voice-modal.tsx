@@ -13,6 +13,7 @@ import { router } from 'expo-router';
 import { debounce } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, Text, View } from 'react-native';
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 
 interface VoiceSelectorModalProps {
   editionId: string;
@@ -81,54 +82,56 @@ export default function VoiceSelectorModal({
   }, []);
 
   return (
-    <Modal animationType="fade" transparent visible={isVisible}>
-      <View style={styles.overlay}>
-        {tab === 'select' && (
-          <View style={[styles.modalContainer, styles.noBottomPadding]}>
-            <ModalHeader title="Select a voice" onClose={onClose} />
-            {isLoading || isStarting ? (
-              <View style={styles.loadingContainer}>
-                <Text style={styles.loadingText}>
-                  {isLoading ? 'Loading voices...' : 'Loading story...'}
-                </Text>
-                <ActivityIndicator size="large" color={Colors.black} />
+    <Modal statusBarTranslucent animationType="fade" transparent visible={isVisible}>
+      <ActionSheetProvider>
+        <View style={styles.overlay}>
+          {tab === 'select' && (
+            <View style={[styles.modalContainer, styles.noBottomPadding]}>
+              <ModalHeader title="Select a voice" onClose={onClose} />
+              {isLoading || isStarting ? (
+                <View style={styles.loadingContainer}>
+                  <Text style={styles.loadingText}>
+                    {isLoading ? 'Loading voices...' : 'Loading story...'}
+                  </Text>
+                  <ActivityIndicator size="large" color={Colors.black} />
+                </View>
+              ) : (
+                <VoiceSelectGrid
+                  variant="modal"
+                  voices={voices}
+                  selectedVoiceId={selectedVoiceId}
+                  onSelectVoice={setSelectedVoiceId}
+                  onPressCreate={() => setTab('create')}
+                />
+              )}
+              <View style={styles.startButtonContainer}>
+                <RoundedButton
+                  text="Start"
+                  onPress={handleStart}
+                  color={Colors.baseBlue}
+                  fontColor={Colors.white}
+                  disabled={!selectedVoiceId}
+                />
               </View>
-            ) : (
-              <VoiceSelectGrid
-                variant="modal"
-                voices={voices}
-                selectedVoiceId={selectedVoiceId}
-                onSelectVoice={setSelectedVoiceId}
-                onPressCreate={() => setTab('create')}
+            </View>
+          )}
+          {tab === 'create' && (
+            <View style={styles.modalContainer}>
+              <ModalHeader
+                title="Create new voice"
+                subtitle="Generate a unique voice for your ebooks"
+                onClose={onClose}
+                onBack={() => setTab('select')}
               />
-            )}
-            <View style={styles.startButtonContainer}>
-              <RoundedButton
-                text="Start"
-                onPress={handleStart}
-                color={Colors.baseBlue}
-                fontColor={Colors.white}
-                disabled={!selectedVoiceId}
+              <CreateVoiceForm
+                isUploadingVoice={isUploadingVoice}
+                setIsUploadingVoice={setIsUploadingVoice}
+                onVoiceCreated={onVoiceCreated}
               />
             </View>
-          </View>
-        )}
-        {tab === 'create' && (
-          <View style={styles.modalContainer}>
-            <ModalHeader
-              title="Create new voice"
-              subtitle="Generate a unique voice for your ebooks"
-              onClose={onClose}
-              onBack={() => setTab('select')}
-            />
-            <CreateVoiceForm
-              isUploadingVoice={isUploadingVoice}
-              setIsUploadingVoice={setIsUploadingVoice}
-              onVoiceCreated={onVoiceCreated}
-            />
-          </View>
-        )}
-      </View>
+          )}
+        </View>
+      </ActionSheetProvider>
     </Modal>
   );
 }

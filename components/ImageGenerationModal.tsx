@@ -2,18 +2,18 @@ import { Colors } from '@/constants/Colors';
 import { usePages } from '@/context/PageProvider';
 import { useStory } from '@/context/story';
 import {
-  fetchEditionImages,
+  fetchPageTextImages,
   generateCharactersForEdition,
   generateImageWithCharacters,
 } from '@/services/service';
 import { styles } from '@/src/styles/components/image-generate-modal/styles.module';
+import { getCachedImageSource } from '@/utils/image';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Animated,
-  Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -24,6 +24,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Image } from 'expo-image';
 
 type Props = {
   visible: boolean;
@@ -35,6 +36,7 @@ type Props = {
   audioBookEditionId?: string;
   imageItemId?: string; // key to persist tries per image item
   initialRatio?: string;
+  audioBookPageTextId?: string;
 };
 
 export default function ImageGenerationModal({
@@ -47,6 +49,7 @@ export default function ImageGenerationModal({
   audioBookEditionId,
   imageItemId,
   initialRatio = '1:1',
+  audioBookPageTextId,
 }: Props) {
   const story = useStory();
   const { getOrInitImageTries, decrementImageTries, isGeneratingImage, setGeneratingImage } =
@@ -64,19 +67,25 @@ export default function ImageGenerationModal({
 
   const scale = useRef(new Animated.Value(0.95)).current;
   const opacity = useRef(new Animated.Value(0)).current;
+  const scrollRef = useRef<ScrollView>(null);
 
-  const disabledGenerate = loading || triesLeft <= 0 || !imageItemId;
+  const disabledGenerate = loading || triesLeft <= 0 || !audioBookPageTextId;
+  const disabledApply = loading || previewUris.length === 0;
 
   // initialize every time the modal is opened
   useEffect(() => {
     if (visible) {
       setPrompt(initialPrompt);
       setSelectedRatio(initialRatio);
-      // Persist tries across open/close using context, keyed by edition + imageItemId
-      if (imageItemId) {
-        const current = getOrInitImageTries(audioBookEditionId, imageItemId, initialTries);
+      // Persist tries across open/close using context, keyed by edition + originalTextId
+      if (audioBookPageTextId) {
+        const current = getOrInitImageTries(
+          audioBookEditionId,
+          audioBookPageTextId,
+          initialTries
+        );
         setTriesLeft(current);
-        const inflight = isGeneratingImage(audioBookEditionId, imageItemId);
+        const inflight = isGeneratingImage(audioBookEditionId, audioBookPageTextId);
         setLoading(inflight);
       } else {
         setTriesLeft(initialTries);
@@ -86,18 +95,20 @@ export default function ImageGenerationModal({
       setCurrentIndex(0);
       setPreviewWidth(0);
       setError(null);
-      if (audioBookEditionId) {
+      if (audioBookPageTextId) {
         // 미리 저장된 이미지 목록 로드 (최신순)
-        fetchEditionImages(audioBookEditionId)
+        // console.log('audioBookPageTextId for preload:', audioBookPageTextId);
+        fetchPageTextImages(audioBookPageTextId)
           .then(imgs => {
-            console.log('imgs: ', imgs);
+            // console.log('imgs: ', imgs);
             const uris = imgs.map(i => i.url);
             setPreviewUris(prev => {
               const merged = [...uris, ...prev.filter(u => !uris.includes(u))];
               return merged;
             });
           })
-          .catch(() => {
+          .catch((e: any) => {
+            // console.log('fetchPageTextImages error:', e?.response?.status, e?.response?.data);
             setPreviewUris([]);
           });
       } else {
@@ -117,8 +128,7 @@ export default function ImageGenerationModal({
     initialPrompt,
     initialTries,
     initialRatio,
-    audioBookEditionId,
-    imageItemId,
+    audioBookPageTextId,
     opacity,
     scale,
   ]);
@@ -126,7 +136,7 @@ export default function ImageGenerationModal({
   const handleGenerate = async () => {
     if (disabledGenerate) return;
     setLoading(true);
-    if (imageItemId) setGeneratingImage(audioBookEditionId, imageItemId, true);
+    if (audioBookPageTextId) setGeneratingImage(audioBookEditionId, audioBookPageTextId, true);
     setError(null);
     try {
       // 1) 캐릭터 생성(에디션 기준) -> 2) 캐릭터들과 프롬프트로 이미지 생성 -> 3) 결과 url 미리보기/저장
@@ -151,17 +161,21 @@ export default function ImageGenerationModal({
         {
           audioBookEditionId,
           ratio: selectedRatio,
+          pageTextId: audioBookPageTextId,
         }
       );
 
       if (sceneImageUrl) {
         setPreviewUris(prev => [sceneImageUrl, ...prev.filter(u => u !== sceneImageUrl)]);
         setCurrentIndex(0);
+        requestAnimationFrame(() => {
+          scrollRef.current?.scrollTo({ x: 0, animated: true });
+        });
       } else {
         setError('No image returned. Please try again.');
       }
-      if (imageItemId) {
-        const next = decrementImageTries(audioBookEditionId, imageItemId);
+      if (audioBookPageTextId) {
+        const next = decrementImageTries(audioBookEditionId, audioBookPageTextId);
         setTriesLeft(next);
       } else {
         setTriesLeft(t => Math.max(0, t - 1));
@@ -169,25 +183,45 @@ export default function ImageGenerationModal({
     } catch {
       // console.log(e);
       setError('Image generation failed. Please try again.');
-      if (imageItemId) {
-        const next = decrementImageTries(audioBookEditionId, imageItemId);
+      if (audioBookPageTextId) {
+        const next = decrementImageTries(audioBookEditionId, audioBookPageTextId);
         setTriesLeft(next);
       } else {
         setTriesLeft(t => Math.max(0, t - 1));
       }
     } finally {
       setLoading(false);
-      if (imageItemId) setGeneratingImage(audioBookEditionId, imageItemId, false);
+      if (audioBookPageTextId) setGeneratingImage(audioBookEditionId, audioBookPageTextId, false);
+    }
+  };
+
+  const handleApply = () => {
+    const uri = previewUris[currentIndex];
+    if (uri && onPick) {
+      onPick(uri);
+      onClose();
     }
   };
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={() => {
+        if (!loading) onClose();
+      }}
+    >
       <KeyboardAvoidingView
         style={styles.overlay}
         behavior={Platform.select({ ios: 'padding', android: undefined })}
       >
-        <Pressable style={styles.backdrop} onPress={onClose} />
+        <Pressable
+          style={styles.backdrop}
+          onPress={() => {
+            if (!loading) onClose();
+          }}
+        />
         <Animated.View style={[styles.card, { opacity, transform: [{ scale }] }]}>
           {/* Preview area */}
           <LinearGradient
@@ -204,6 +238,7 @@ export default function ImageGenerationModal({
               </View>
             ) : (
               <ScrollView
+                ref={scrollRef}
                 horizontal
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
@@ -224,13 +259,14 @@ export default function ImageGenerationModal({
                     >
                       <TouchableOpacity
                         activeOpacity={0.85}
-                        onPress={() => {
-                          onPick && onPick(uri);
-                          onClose();
-                        }}
                         style={styles.imageContainer}
                       >
-                        <Image source={{ uri }} style={styles.previewImage} resizeMode="contain" />
+                        <Image
+                          source={getCachedImageSource(uri)}
+                          style={styles.previewImage}
+                          transition={250}
+                          contentFit="contain"
+                        />
                       </TouchableOpacity>
                     </View>
                   ))
@@ -312,13 +348,22 @@ export default function ImageGenerationModal({
               <Text style={styles.triesText}>
                 {triesLeft}/{initialTries} tries left
               </Text>
-              <TouchableOpacity
-                style={[styles.generateBtn, disabledGenerate && { opacity: 0.6 }]}
-                onPress={handleGenerate}
-                disabled={disabledGenerate}
-              >
-                <Text style={styles.generateText}>{loading ? 'Generating...' : 'Generate'}</Text>
-              </TouchableOpacity>
+              <View style={styles.buttonsArea}>
+                <TouchableOpacity
+                  style={[styles.generateBtn, disabledGenerate && { opacity: 0.6 }]}
+                  onPress={handleGenerate}
+                  disabled={disabledGenerate}
+                >
+                  <Text style={styles.generateText}>{loading ? 'Generating...' : 'Generate'}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.generateBtn, disabledApply && { opacity: 0.6 }]}
+                  onPress={handleApply}
+                  disabled={disabledApply}
+                >
+                  <Text style={styles.generateText}>Apply</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </Animated.View>

@@ -46,14 +46,13 @@ export const ReaderPageWordToken: React.FC<{
     color: color,
     fontWeight: fontWeight,
     fontStyle: fontStyle,
+    lineHeight: fontSize * 1.2,
   };
-
-  const largeLineHeight = (fontWeight === 'bold' || baseFontSize > 24) ? styles.largeLineHeight : {};
 
   return (
     <View style={[styles.wordWrap]}>
       <Animated.View pointerEvents="none" style={[styles.wordFill, fillStyle]} />
-      <Text onPress={onPress} style={[styles.word, textStyle, largeLineHeight]}>
+      <Text onPress={onPress} style={[styles.word, textStyle]}>
         {text + ' '}
       </Text>
     </View>

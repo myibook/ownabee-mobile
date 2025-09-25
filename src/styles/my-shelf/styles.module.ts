@@ -103,6 +103,7 @@ export const styles = StyleSheet.create({
   coverImageRounded: {
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
+    backgroundColor: Colors.baseGray,
   },
   bookTitle: {
     fontWeight: '600',

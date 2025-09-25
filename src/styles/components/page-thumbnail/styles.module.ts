@@ -21,7 +21,6 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: 1, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    marginBottom: 12,
   },
   vertical: {
     flex: 1,

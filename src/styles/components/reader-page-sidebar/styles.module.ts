@@ -44,7 +44,6 @@ export const styles = StyleSheet.create({
   },
   coverThumbnail: {
     overflow: 'hidden',
-    backgroundColor: Colors.mediumPurple,
     padding: 0,
   },
   coverImage: {

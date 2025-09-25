@@ -22,6 +22,23 @@ export const styles = StyleSheet.create({
     paddingVertical: 16,
   },
 
+  alertContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.black,
+    gap: 12,
+  },
+  alertTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: Colors.white,
+  },
+  alertText: {
+    fontSize: 16,
+    color: Colors.white,
+  },
+
   // Header styles
   header: {
     position: 'absolute',
@@ -79,44 +96,6 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: 4, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 16,
-  },
-
-  // Cover page styles
-  coverPage: {
-    width: 500,
-    aspectRatio: 4 / 5,
-    backgroundColor: Colors.mediumPurple,
-    borderRadius: PAGE_BORDER_RADIUS,
-    overflow: 'hidden',
-  },
-  coverImage: {
-    width: '100%',
-    height: '100%',
-  },
-  swipeOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    top: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    textShadowColor: Colors.black,
-    textShadowOffset: SHADOW_OFFSET,
-    textShadowRadius: SHADOW_RADIUS,
-    /// iOS shadow
-    shadowColor: Colors.black,
-    shadowOffset: SHADOW_OFFSET,
-    shadowRadius: SHADOW_RADIUS,
-    shadowOpacity: 1,
-    elevation: 5,
-  },
-  swipeText: {
-    color: Colors.white,
-    fontSize: 16,
-    fontWeight: 'bold',
   },
 
   // Page container styles

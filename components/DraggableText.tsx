@@ -87,7 +87,7 @@ const DraggableText = forwardRef<DraggableText, Props>(
         const defaultTextItems = [
           {
             id: Date.now(),
-            text: '',
+            text: title,
             fontSize: DEFAULT_FONT_SIZE,
             color: 'black',
             backgroundColor: '',
@@ -175,7 +175,7 @@ const DraggableText = forwardRef<DraggableText, Props>(
         ...prev,
         {
           id: Date.now(),
-          text: '',
+          text: title,
           fontSize: DEFAULT_FONT_SIZE,
           color: Colors.black,
           backgroundColor: '',

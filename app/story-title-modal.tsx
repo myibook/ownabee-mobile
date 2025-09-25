@@ -1,5 +1,6 @@
 import { styles } from '@/src/styles/story-title-modal/styles.module';
 import { router } from 'expo-router';
+import { Colors } from '@/constants/Colors';
 
 import { useEffect, useState } from 'react';
 import { Modal, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -31,6 +32,7 @@ export default function StoryTitleModal({ isVisible, onClose }: StoryTitleModalP
           <View style={styles.modalContent}>
             <TextInput
               placeholder="What's the title of your storybook?"
+              placeholderTextColor={Colors.quaternaryGray}
               value={title}
               onChangeText={setTitle}
               style={styles.input}

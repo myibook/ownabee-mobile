@@ -43,11 +43,27 @@ export const styles = StyleSheet.create({
     cursor: 'ew-resize' as any,
     zIndex: 10,
   },
+  resizeHandleVertical: {
+    position: 'absolute',
+    left: '50%',
+    width: 40,
+    height: 10,
+    backgroundColor: '#007AFF',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: 'white',
+    transform: [{ translateX: -20 }],
+    cursor: 'ew-resize' as any,
+    zIndex: 10,
+  },
   leftHandle: {
-    left: -5,
+    left: -6,
   },
   rightHandle: {
-    right: -5,
+    right: -6,
+  },
+  bottomHandle: {
+    bottom: -6,
   },
   textView: {
     width: '100%',

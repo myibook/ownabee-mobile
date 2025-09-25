@@ -5,13 +5,13 @@ import { Colors } from '@/constants/Colors';
 import { useStory } from '@/context/story';
 import { createCover, fetchEditionImages } from '@/services/service';
 import { styles } from '@/src/styles/cover-editor/styles.module';
+import { getCachedImageSource } from '@/utils/image';
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
-  Image,
   Modal,
   Pressable,
   ScrollView,
@@ -19,6 +19,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Image } from 'expo-image';
 
 import { captureRef } from 'react-native-view-shot';
 
@@ -146,9 +147,10 @@ export default function CoverEditorScreen() {
           }}
         >
           <Image
-            source={{ uri: coverImageUri }}
+            source={coverImageUri ? getCachedImageSource(coverImageUri) : null}
             style={styles.selectediImage}
-            resizeMode="contain"
+            transition={250}
+            contentFit="contain"
           />
           <Pressable onPress={() => setSignal(s => s + 1)} style={styles.clickSignalContainer} />
           <DraggableText
@@ -201,7 +203,12 @@ export default function CoverEditorScreen() {
 
           {generatedImages.map((uri, index) => (
             <TouchableOpacity key={`generated-${index}`} onPress={() => setCoverImageUri(uri)}>
-              <Image source={{ uri }} style={styles.imageChoice} resizeMode="contain" />
+              <Image
+                source={getCachedImageSource(uri)}
+                style={styles.imageChoice}
+                transition={250}
+                contentFit="contain"
+              />
             </TouchableOpacity>
           ))}
         </ScrollView>

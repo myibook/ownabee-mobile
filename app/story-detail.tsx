@@ -3,9 +3,11 @@ import { Colors } from '@/constants/Colors';
 import { fetchAudioBookDetail } from '@/services/service';
 import { styles } from '@/src/styles/story-detail/styles.module';
 import { AudioBookDetail } from '@/types/audiobook';
+import { getCachedImageSource } from '@/utils/image';
 import { Link, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
+import { Image } from 'expo-image';
 
 import VoiceSelectorModal from './select-voice-modal';
 
@@ -44,7 +46,11 @@ export default function StoryDetailScreen() {
       <View style={styles.content}>
         {/* Left: Book cover */}
         <View style={styles.coverWrapper}>
-          <Image source={{ uri: book?.coverPageUrl }} style={styles.cover} />
+          <Image
+            source={book?.coverPageUrl ? getCachedImageSource(book.coverPageUrl) : null}
+            style={styles.cover}
+            transition={250}
+          />
           <Text style={styles.pageCount}>Page 1/{book?.pageCount}</Text>
         </View>
 

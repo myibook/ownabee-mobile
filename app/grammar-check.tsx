@@ -3,7 +3,7 @@ import PageThumbnail from '@/components/PageThumbnail';
 import TopBar from '@/components/TopBar';
 import { Colors } from '@/constants/Colors';
 import { useStory } from '@/context/story';
-import { updateGrammarCorrectedText } from '@/services/service';
+import { saveTextsToServer, updateGrammarCorrectedText } from '@/services/service';
 import { styles } from '@/src/styles/grammar-check/styles.module';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { router } from 'expo-router';
@@ -121,6 +121,7 @@ export default function GrammarCheckScreen() {
 
     const newTexts = [...texts];
     newTexts[selectedIndex] = { ...newTexts[selectedIndex], originalText: updatedText };
+    saveTextsToServer(newTexts);
     setTexts(newTexts);
   };
 

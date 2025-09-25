@@ -1,12 +1,16 @@
-import React from 'react';
-import { View, Text, ViewStyle, Image } from 'react-native';
-import { SharedValue } from 'react-native-reanimated';
 import { Page, CanvasTextItem, CanvasImageItem } from '@/types/audiobook';
+import { Colors } from '@/constants/Colors';
+import { getCachedImageSource } from '@/utils/image';
+import React from 'react';
+import { View, ViewStyle } from 'react-native';
+import { Image } from 'expo-image';
+import { SharedValue } from 'react-native-reanimated';
 import { ReaderPageWordToken } from './ReaderPageWordToken';
 
 interface PageViewerProps {
   page: Page;
   size: { width: number; height: number };
+  canvasWidth: number;
   backgroundColor?: string;
   currentPositionMs?: SharedValue<number>;
   activeTextId?: string;
@@ -16,6 +20,7 @@ interface PageViewerProps {
 const PageViewer: React.FC<PageViewerProps> = ({
   page,
   size,
+  canvasWidth,
   backgroundColor = '#ffffff',
   currentPositionMs = { value: 0 } as SharedValue<number>,
   activeTextId,
@@ -44,8 +49,8 @@ const PageViewer: React.FC<PageViewerProps> = ({
 
         if (item.type === 'text') {
           const textItem = item as CanvasTextItem;
-          const fontScale = size.width / 800;
-          const fontSize = textItem.baseFontSize * (textItem.width / textItem.originalWidth) * fontScale;
+          const fontScale = size.width / canvasWidth;
+          const fontSize = textItem.baseFontSize * fontScale;
           const isActiveElement = activeTextId === textItem.id;
 
           return (
@@ -54,7 +59,7 @@ const PageViewer: React.FC<PageViewerProps> = ({
               style={[
                 itemStyle, 
                 { 
-                  height: textItem.height * size.height, 
+                  height: 'auto', 
                   overflow: 'hidden',
                   backgroundColor: textItem.backgroundColor || 'transparent',
                   flexDirection: 'row',
@@ -90,17 +95,23 @@ const PageViewer: React.FC<PageViewerProps> = ({
               style={[
                 itemStyle,
                 {
-                  height: (imageItem.width * size.width) / imageItem.aspectRatio,
-                  backgroundColor: '#CDB4DB',
+                  height: item.aspectRatio
+                    ? (item.width * size.width) / item.aspectRatio
+                    : item.height! * size.height,
                   borderRadius: 4 * (size.width / 80),
                 },
               ]}
             >
               {imageItem.imageUrl && (
                 <Image
-                  source={{ uri: imageItem.imageUrl }}
-                  style={{ width: '100%', height: '100%', borderRadius: 4 * (size.width / 80) }}
-                  resizeMode="cover"
+                  source={getCachedImageSource(imageItem.imageUrl)}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: 4 * (size.width / 80),
+                  }}
+                  transition={250}
+                  contentFit={item.aspectRatio ? 'cover' : 'fill'}
                 />
               )}
             </View>

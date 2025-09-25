@@ -4,14 +4,14 @@ import { Colors } from '@/constants/Colors';
 import { useReader } from '@/context/ReaderProvider';
 import { useStory } from '@/context/story';
 import { fetchEditionWithTranscript, generateTranscript } from '@/services/service';
-import { fetchVoices } from '@/services/voice.service';
+import { fetchVoicesWithReadyStatus } from '@/services/voice.service';
 import { styles } from '@/src/styles/select-voice/styles.module';
 import { Voice } from '@/types/voice';
 import CreateVoiceModal from './create-voice-modal';
 
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { debounce } from 'lodash';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 
 export default function VoiceSelectorScreen() {
@@ -56,7 +56,7 @@ export default function VoiceSelectorScreen() {
     debounce(async () => {
       setIsLoading(true);
       try {
-        const result = await fetchVoices();
+        const result = await fetchVoicesWithReadyStatus(audioBookEditionId);
         setVoices(result);
       } catch (error) {
         console.error('Error fetching voices:', error);
@@ -67,9 +67,12 @@ export default function VoiceSelectorScreen() {
     []
   );
 
-  useEffect(() => {
-    loadVoices();
-  }, []);
+  // if reader data fails, refetch voices with ready status when user returns to this screen
+  useFocusEffect(
+    useCallback(() => {
+      loadVoices();
+    }, [])
+  );
 
   return (
     <View style={styles.container}>

@@ -1,4 +1,5 @@
 import PageViewer from '@/components/PageViewer';
+import ReaderCoverPage from '@/components/ReaderCoverPage';
 import ReaderPageSidebar from '@/components/ReaderPageSidebar';
 import TopBar from '@/components/TopBar';
 import IconButton from '@/components/ui/IconButton';
@@ -6,11 +7,11 @@ import { Colors } from '@/constants/Colors';
 import { useReader } from '@/context/ReaderProvider';
 import { styles } from '@/src/styles/story-reader/styles.module';
 import { CanvasTextItem, FlatItem, Page, TranscriptWord } from '@/types/audiobook';
-import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { Audio, AVPlaybackStatus } from 'expo-av';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Image, Platform, Text, View } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Extrapolation,
@@ -30,19 +31,18 @@ const AUTO_PLAY_DELAY = 100;
 const AUDIO_END_THRESHOLD = 1000;
 const PAGE_CHANGE_AUDIO_DELAY = 100;
 const PAGE_TRANSITION_DURATION = 300;
-const READER_DATA_CLEANUP_DELAY = 6000;
+const CANVAS_WIDTH = 500;
+const CANVAS_HEIGHT = 625;
 
 export default function StoryReaderScreen() {
   const [currentView, setCurrentView] = useState(0);
   const [currentIdx, setCurrentIdx] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [currentAudioElement, setCurrentAudioElement] = useState<CanvasTextItem | null>(null);
   const [isAutoPageChange, setIsAutoPageChange] = useState(false);
   const currentPositionMs = useSharedValue(0);
 
   const { bookData, clearReaderData } = useReader();
-  const book = bookData!;
   
   const soundRef = useRef<Audio.Sound | null>(null);
   const autoPlayTimerRef = useRef<number | null>(null);
@@ -50,13 +50,12 @@ export default function StoryReaderScreen() {
   const currentElementRef = useRef<CanvasTextItem | null>(null);
   const preloadedElementRef = useRef<CanvasTextItem | null>(null);
   const isPreloadingRef = useRef<boolean>(false);
+  const selectedThumbnailIndexRef = useRef<'cover' | number | null>('cover');
+  const isLoadingAudioRef = useRef(false);
+  const isMountedRef = useRef(true);
 
-  const totalPages = book.pages.length;
-  const totalViews = 1 + Math.ceil(totalPages / 2);
-
-  const [selectedThumbnailIndex, setSelectedThumbnailIndex] = useState<'cover' | number | null>(
-    'cover'
-  );
+  const totalPages = bookData?.pages.length ?? 0;
+  const totalViews = totalPages > 0 ? 1 + Math.ceil(totalPages / 2) : 0;
 
   const translateX = useSharedValue(0);
   const isDragging = useSharedValue(false);
@@ -66,7 +65,7 @@ export default function StoryReaderScreen() {
 
   // element caching
   const getAudioElementsFromPage = useCallback((pageIndex: number): CanvasTextItem[] => {
-    const page = book.pages[pageIndex];
+    const page = bookData?.pages[pageIndex];
     if (!page) return [];
 
     return page.items.filter(
@@ -76,7 +75,9 @@ export default function StoryReaderScreen() {
 
   const audioElementsCache = useMemo(() => {
     const cache = new Map<number, CanvasTextItem[]>();
-    for (let i = 0; i < book.pages.length; i++) {
+    if (!bookData?.pages) return cache;
+
+    for (let i = 0; i < bookData.pages.length; i++) {
       cache.set(i, getAudioElementsFromPage(i));
     }
     return cache;
@@ -94,12 +95,14 @@ export default function StoryReaderScreen() {
     (
       currentElement: CanvasTextItem
     ): { element: CanvasTextItem | null; needsPageChange: boolean; targetView: number } => {
+      if (!bookData?.pages) return { element: null, needsPageChange: false, targetView: 0 };
+
       // Find the current element's position in the book
       let currentPageIndex = -1;
       let currentElementIndex = -1;
 
       // Search through all pages to find the current element
-      for (let i = 0; i < book.pages.length; i++) {
+      for (let i = 0; i < bookData.pages.length; i++) {
         const audioElements = getAudioElementsFromPage(i);
 
         const elementIndex = audioElements.findIndex(el => el === currentElement);
@@ -135,7 +138,7 @@ export default function StoryReaderScreen() {
 
       // If no more elements in current page, look in next pages
       console.log('No more elements on current page, looking in next pages...');
-      for (let i = currentPageIndex + 1; i < book.pages.length; i++) {
+      for (let i = currentPageIndex + 1; i < bookData.pages.length; i++) {
         const nextPageAudioElements = getAudioElementsFromPage(i);
 
         console.log(`Page ${i + 1} has ${nextPageAudioElements.length} audio elements`);
@@ -173,7 +176,11 @@ export default function StoryReaderScreen() {
 
   const preloadNextAudio = useCallback(
     async (currentElement: CanvasTextItem) => {
-      if (isPreloadingRef.current) return;
+      if (
+        !bookData?.pages ||
+        isPreloadingRef.current ||
+        selectedThumbnailIndexRef.current === 'cover'
+      ) return;
 
       const position = findElementPosition(currentElement);
       if (!position) return;
@@ -187,7 +194,7 @@ export default function StoryReaderScreen() {
       if (elementIndex < currentPageElements.length - 1) {
         nextElement = currentPageElements[elementIndex + 1];
       } else {
-        for (let i = pageIndex + 1; i < book.pages.length; i++) {
+        for (let i = pageIndex + 1; i < bookData.pages.length; i++) {
           const elements = audioElementsCache.get(i) || [];
           if (elements.length > 0) {
             nextElement = elements[0];
@@ -280,7 +287,7 @@ export default function StoryReaderScreen() {
         targetView,
       } = findNextAudioElementWithPageInfo(currentElement);
 
-      if (nextElement) {
+      if (nextElement && selectedThumbnailIndexRef.current !== 'cover') {
         if (needsPageChange && targetView !== currentView) {
           setIsAutoPageChange(true);
           setCurrentView(targetView);
@@ -313,14 +320,15 @@ export default function StoryReaderScreen() {
 
   const loadAudio = useCallback(
     async (element: CanvasTextItem) => {
+      if (!isMountedRef.current) return;
       if (!element.audioUrl || !element.transcript) {
         return;
       }
       if (currentAudioElement?.id === element.id) {
-        setIsLoadingAudio(false);
+        isLoadingAudioRef.current = false;
         return;
       }
-      setIsLoadingAudio(true);
+      isLoadingAudioRef.current = true;
       if (soundRef.current) {
         await soundRef.current.unloadAsync().catch(console.error);
       }
@@ -337,6 +345,11 @@ export default function StoryReaderScreen() {
             { shouldPlay: false }
           );
           sound = result.sound;
+        }
+        // double check if component is still mounted
+        if (!isMountedRef.current) {
+          await sound.unloadAsync();
+          return;
         }
         soundRef.current = sound;
         await soundRef.current.setProgressUpdateIntervalAsync(50);
@@ -356,7 +369,7 @@ export default function StoryReaderScreen() {
         soundRef.current = null;
         setCurrentAudioElement(null);
       } finally {
-        setIsLoadingAudio(false);
+        isLoadingAudioRef.current = false;
       }
     },
     [currentAudioElement, onAudioUpdate, preloadNextAudio]
@@ -369,7 +382,11 @@ export default function StoryReaderScreen() {
 
   const handleWordClick = useCallback(
     async (i: number, transcript: TranscriptWord[], element: CanvasTextItem) => {
-      if (currentAudioElement?.id === element.id && soundRef.current && !isLoadingAudio) {
+      if (
+        currentAudioElement?.id === element.id &&
+        soundRef.current &&
+        !isLoadingAudioRef.current
+      ) {
         const sound = soundRef.current;
         await sound.setPositionAsync(transcript[i].startMs);
         currentPositionMs.value = transcript[i].startMs;
@@ -383,11 +400,11 @@ export default function StoryReaderScreen() {
 
         setCurrentIdx(i);
       } else {
-        if (!isLoadingAudio) {
+        if (!isLoadingAudioRef.current) {
           await loadAudio(element);
 
           const sound = soundRef.current;
-          if (!sound) return;
+          if (!sound || selectedThumbnailIndexRef.current === 'cover') return;
 
           // Set position to clicked word and play
           await sound.setPositionAsync(transcript[i].startMs);
@@ -399,7 +416,7 @@ export default function StoryReaderScreen() {
         }
       }
     },
-    [loadAudio, currentAudioElement, isLoadingAudio]
+    [loadAudio, currentAudioElement]
   );
 
   // Setup audio mode for playback
@@ -422,12 +439,13 @@ export default function StoryReaderScreen() {
   }, []);
 
   const getThumbnailIndexFromView = useCallback((viewIndex: number): 'cover' | number | null => {
+    if (!bookData?.pages) return null;
     if (viewIndex === 0) return 'cover';
 
     const pageViewIndex = viewIndex - 1;
     const leftPageIndex = pageViewIndex * 2;
 
-    if (leftPageIndex < book.pages.length) {
+    if (leftPageIndex < bookData.pages.length) {
       return leftPageIndex;
     }
 
@@ -436,69 +454,85 @@ export default function StoryReaderScreen() {
 
   // Load audio when current view changes
   useEffect(() => {
-    if (currentView === coverViewIndex) return; // Skip cover page
-    if (isAutoPageChange) return; // Skip if this is an automatic page change
-    if (isLoadingAudio) return; // Skip if audio is currently loading
+    const handleViewChange = async () => {
+      if (!bookData?.pages) return;
+      if (isAutoPageChange) return; // Skip if this is an automatic page change
+      if (isLoadingAudioRef.current) return; // Skip if audio is currently loading
 
-    console.log('Page view changed to:', currentView, 'isAutoPageChange:', isAutoPageChange);
-
-    // Don't auto-load audio when manually changing pages
-    // Only load audio when navigating to a new page for the first time
-    const thumbnailIdx = getThumbnailIndexFromView(currentView);
-    const isThumbnailNavigation = thumbnailIdx === selectedThumbnailIndex;
-    if (currentAudioElement || isThumbnailNavigation) {
-      console.log('Skipping auto-audio load - already have current audio element');
-      return;
-    }
-
-    const pageViewIndex = currentView - 1;
-    const leftPageIndex = pageViewIndex * 2;
-    const rightPageIndex = leftPageIndex + 1;
-
-    const leftPage = book.pages[leftPageIndex];
-    const rightPage = book.pages[rightPageIndex];
-
-    // Find first text element with audio
-    let audioElement: CanvasTextItem | null = null;
-
-    if (leftPage) {
-      const leftAudioElements = getAudioElementsFromPage(leftPageIndex);
-      audioElement = leftAudioElements[0] || null;
-    }
-
-    if (!audioElement && rightPage) {
-      const rightAudioElements = getAudioElementsFromPage(rightPageIndex);
-      audioElement = rightAudioElements[0] || null;
-    }
-
-    if (audioElement) {
-      console.log('Auto-loading first audio element for new page view');
-      loadAudio(audioElement);
-      // Auto-play the audio when page changes
-      setTimeout(() => {
-        if (soundRef.current && !isLoadingAudio) {
-          soundRef.current.playAsync();
-          setIsPlaying(true);
+      // clear audio if swiping to cover page
+      if (currentView === coverViewIndex) {
+        if (soundRef.current) {
+          await soundRef.current.stopAsync();
+          await soundRef.current.unloadAsync();
+          soundRef.current = null;
+          setCurrentAudioElement(null);
+          setIsPlaying(false);
         }
-      }, PAGE_CHANGE_AUDIO_DELAY);
-    }
+        return;
+      }
+  
+      console.log('Page view changed to:', currentView, 'isAutoPageChange:', isAutoPageChange);
+  
+      // Don't auto-load audio when manually changing pages
+      // Only load audio when navigating to a new page for the first time
+      const thumbnailIdx = getThumbnailIndexFromView(currentView);
+      const isThumbnailNavigation = thumbnailIdx === selectedThumbnailIndexRef.current;
+      if (currentAudioElement || isThumbnailNavigation) {
+        console.log('Skipping auto-audio load - already have current audio element');
+        return;
+      }
+  
+      const pageViewIndex = currentView - 1;
+      const leftPageIndex = pageViewIndex * 2;
+      const rightPageIndex = leftPageIndex + 1;
+  
+      const leftPage = bookData.pages[leftPageIndex];
+      const rightPage = bookData.pages[rightPageIndex];
+  
+      // Find first text element with audio
+      let audioElement: CanvasTextItem | null = null;
+  
+      if (leftPage) {
+        const leftAudioElements = getAudioElementsFromPage(leftPageIndex);
+        audioElement = leftAudioElements[0] || null;
+      }
+  
+      if (!audioElement && rightPage) {
+        const rightAudioElements = getAudioElementsFromPage(rightPageIndex);
+        audioElement = rightAudioElements[0] || null;
+      }
+  
+      if (audioElement) {
+        console.log('Auto-loading first audio element for new page view');
+        await loadAudio(audioElement);
+        // Auto-play the audio when page changes
+        setTimeout(async () => {
+          if (soundRef.current && !isLoadingAudioRef.current) {
+            await soundRef.current.playAsync();
+            setIsPlaying(true);
+          }
+        }, PAGE_CHANGE_AUDIO_DELAY);
+      }
+    };
+    handleViewChange();
   }, [
     currentView,
     loadAudio,
     isAutoPageChange,
     currentAudioElement,
-    selectedThumbnailIndex,
     getThumbnailIndexFromView,
-    isLoadingAudio,
   ]);
 
-  // Cleanup audio on unmount
+  // Cleanup audio and data on unmount
   useEffect(() => {
+    isMountedRef.current = true;
     return () => {
+      isMountedRef.current = false;
       if (soundRef.current) {
         soundRef.current.unloadAsync();
       }
       clearAutoPlayTimer();
+      clearReaderData();
     };
   }, [clearAutoPlayTimer]);
 
@@ -564,21 +598,12 @@ export default function StoryReaderScreen() {
   });
 
   // Component renderers
-  const CoverPage: React.FC = () => (
-    <View style={styles.coverPage}>
-      <Image source={{ uri: book.coverPageUrl }} style={styles.coverImage} resizeMode="cover" />
-      <View style={styles.swipeOverlay}>
-        <MaterialIcons name="swipe" size={24} color={Colors.white} />
-        <Text style={styles.swipeText}>Swipe to read</Text>
-      </View>
-    </View>
-  );
-
   const renderPage = (page: Page) => {
     return (
       <PageViewer
         page={page}
-        size={{ width: 500, height: 625 }}
+        size={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT }}
+        canvasWidth={CANVAS_WIDTH}
         currentPositionMs={currentPositionMs}
         activeTextId={currentAudioElement?.id}
         onWordPress={handleWordClick}
@@ -588,16 +613,18 @@ export default function StoryReaderScreen() {
 
   const renderPageView = useCallback(
     (viewIndex: number) => {
+      if (!bookData?.pages) return null;
+      
       if (viewIndex === 0) {
-        return <CoverPage />;
+        return <ReaderCoverPage coverPageUrl={bookData?.coverPageUrl} />;
       }
 
       const pageViewIndex: number = viewIndex - 1;
       const leftPageIndex: number = pageViewIndex * 2;
       const rightPageIndex: number = leftPageIndex + 1;
 
-      const leftPage: Page = book.pages[leftPageIndex];
-      const rightPage: Page | undefined = book.pages[rightPageIndex];
+      const leftPage: Page = bookData.pages[leftPageIndex];
+      const rightPage: Page | undefined = bookData.pages[rightPageIndex];
 
       // single page
       if (!rightPage) {
@@ -638,35 +665,37 @@ export default function StoryReaderScreen() {
   const handlePreviousPage = useCallback(async () => {
     let previousPageIndex: 'cover' | number;
 
-    if (typeof selectedThumbnailIndex === 'number') {
-      if (selectedThumbnailIndex === 0) {
+    if (typeof selectedThumbnailIndexRef.current === 'number') {
+      if (selectedThumbnailIndexRef.current === 0) {
         previousPageIndex = 'cover';
       } else {
-        previousPageIndex = selectedThumbnailIndex - 1;
+        previousPageIndex = selectedThumbnailIndexRef.current - 1;
       }
     } else {
       return;
     }
 
     await handleThumbnailPress(previousPageIndex);
-  }, [selectedThumbnailIndex]);
+  }, []);
 
   const handleNextPage = useCallback(async () => {
+    if (!bookData?.pages) return;
+
     let nextPageIndex: 'cover' | number;
 
-    if (selectedThumbnailIndex === 'cover') {
+    if (selectedThumbnailIndexRef.current === 'cover') {
       nextPageIndex = 0;
-    } else if (typeof selectedThumbnailIndex === 'number') {
-      if (selectedThumbnailIndex >= book.pages.length - 1) {
+    } else if (typeof selectedThumbnailIndexRef.current === 'number') {
+      if (selectedThumbnailIndexRef.current >= bookData.pages.length - 1) {
         return;
       }
-      nextPageIndex = selectedThumbnailIndex + 1;
+      nextPageIndex = selectedThumbnailIndexRef.current + 1;
     } else {
       return;
     }
 
     await handleThumbnailPress(nextPageIndex);
-  }, [selectedThumbnailIndex]);
+  }, []);
 
   const handleBackPress = useCallback(async () => {
     // Reset all states
@@ -674,18 +703,13 @@ export default function StoryReaderScreen() {
     setCurrentIdx(null);
     setCurrentAudioElement(null);
     setCurrentView(0);
-    setSelectedThumbnailIndex('cover');
+    selectedThumbnailIndexRef.current = 'cover';
 
     // Navigate back
     // Note: In a real app, you might want to use router.back() or similar
     console.log('Navigating back to story detail');
     router.back();
-
-    // Clear reader data after 2 seconds to avoid re-render with empty data
-    setTimeout(() => {
-      clearReaderData();
-    }, READER_DATA_CLEANUP_DELAY);
-  }, [clearAutoPlayTimer]);
+  }, []);
 
   const getViewFromPageIndex = (pageIndex: 'cover' | number): number => {
     if (pageIndex === 'cover') return 0;
@@ -694,11 +718,11 @@ export default function StoryReaderScreen() {
 
   const handleThumbnailPress = useCallback(
     async (pageIndex: 'cover' | number) => {
-      // First, handle the state change immediately to prevent race conditions
+      if (!bookData?.pages) return;
+
       const targetView = getViewFromPageIndex(pageIndex);
 
-      if (selectedThumbnailIndex === pageIndex) {
-        // If the same thumbnail is pressed, just toggle play/pause
+      if (selectedThumbnailIndexRef.current === pageIndex) {
         if (soundRef.current && currentAudioElement) {
           const status = await soundRef.current.getStatusAsync();
           if (status.isLoaded) {
@@ -711,60 +735,54 @@ export default function StoryReaderScreen() {
             }
           }
         }
-        // Special case for cover page to handle stop/restart
         if (pageIndex === 'cover' && soundRef.current) {
           await soundRef.current.stopAsync();
           setIsPlaying(false);
         }
         return;
       }
-
-      // If a different thumbnail is pressed, stop current audio and change view
+      
       if (soundRef.current) {
         await soundRef.current.stopAsync();
         setIsPlaying(false);
       }
-      setCurrentAudioElement(null); // Crucial: Reset the current element state
+      setCurrentAudioElement(null);
       setCurrentIdx(null);
-
-      // Change view and selected thumbnail
       setCurrentView(targetView);
-      setSelectedThumbnailIndex(pageIndex);
+      selectedThumbnailIndexRef.current = pageIndex;
 
-      // Now, load the new audio if a numbered page is selected
-      if (typeof pageIndex === 'number' && pageIndex >= 0 && pageIndex < book.pages.length) {
+      if (typeof pageIndex === 'number' && pageIndex >= 0 && pageIndex < bookData.pages.length) {
         const audioElements = getAudioElementsFromPage(pageIndex);
         if (audioElements.length > 0) {
           const firstAudioElement = audioElements[0];
           await loadAudio(firstAudioElement);
-          if (soundRef.current) {
+          if (soundRef.current && selectedThumbnailIndexRef.current !== 'cover') {
             await soundRef.current.playAsync();
             setIsPlaying(true);
           }
         }
       }
     },
-    [loadAudio, selectedThumbnailIndex, currentAudioElement, getAudioElementsFromPage]
+    [
+      loadAudio,
+      currentAudioElement,
+      getAudioElementsFromPage,
+    ]
   );
 
   // sync highlighted thumbnail when audio, swipe or buttons are used to change pages
   useEffect(() => {
     const thumbnailIdx = getThumbnailIndexFromView(currentView);
-
-    // check if selected thumbnail is already in view
-    if (selectedThumbnailIndex === 'cover' && currentView === coverViewIndex) return;
-    if (typeof selectedThumbnailIndex === 'number') {
-      const currentSelectedView = getViewFromPageIndex(selectedThumbnailIndex);
-      if (currentSelectedView === currentView) return;
-    }
-
-    setSelectedThumbnailIndex(thumbnailIdx);
-  }, [currentView, getThumbnailIndexFromView, selectedThumbnailIndex]);
+    selectedThumbnailIndexRef.current = thumbnailIdx;
+  }, [currentView, getThumbnailIndexFromView]);
 
   const flatTimeline = useMemo(() => {
     const items: FlatItem[] = [];
     let offset = 0;
-    for (let pageIndex = 0; pageIndex < book.pages.length; pageIndex++) {
+
+    if (!bookData?.pages) return { items, totalDurationMs: offset };
+
+    for (let pageIndex = 0; pageIndex < bookData.pages.length; pageIndex++) {
       const audioEls = getAudioElementsFromPage(pageIndex);
       const viewIndex = Math.floor(pageIndex / 2) + 1;
       for (const el of audioEls) {
@@ -790,7 +808,7 @@ export default function StoryReaderScreen() {
       // page change
       setIsAutoPageChange(true);
       setCurrentView(firstItem.viewIndex);
-      setSelectedThumbnailIndex(firstItem.pageIndex);
+      selectedThumbnailIndexRef.current = firstItem.pageIndex;
 
       // load audio and play
       await loadAudio(firstItem.element);
@@ -828,9 +846,22 @@ export default function StoryReaderScreen() {
     currentAudioElement,
     loadAudio,
     flatTimeline,
-    setSelectedThumbnailIndex,
     currentPositionMs,
   ]);
+
+  if (!bookData) return (
+    <View style={styles.container}>
+      <TopBar
+        title="Review your book"
+        titleColor={Colors.white}
+        onBackPress={() => router.back()}
+        />
+      <View style={styles.alertContainer}>
+        <Text style={styles.alertTitle}>No story found!</Text>
+        <Text style={styles.alertText}>Please go back and try again.</Text>
+      </View>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -838,13 +869,13 @@ export default function StoryReaderScreen() {
       <TopBar
         title="Review your book"
         titleColor={Colors.white}
-        onBackPress={book.prevPath === 'library' ? handleBackPress : undefined}
+        onBackPress={bookData.prevPath === 'library' ? handleBackPress : undefined}
         rightButtons={
-          book.prevPath === 'writer'
+          bookData.prevPath === 'writer'
             ? [
                 {
                   text: 'Publish',
-                  href: '/',
+                  onPress: () => router.replace('/(tabs)'),
                   color: Colors.lightBlue,
                 },
               ]
@@ -855,10 +886,11 @@ export default function StoryReaderScreen() {
       {/* page navigation + thumbnail preview */}
       <View style={styles.readerContainer}>
         <ReaderPageSidebar
-          pages={book.pages}
-          selectedIndex={selectedThumbnailIndex}
+          pages={bookData.pages}
+          canvasWidth={CANVAS_WIDTH}
+          selectedIndex={selectedThumbnailIndexRef.current}
           onPressIndex={handleThumbnailPress}
-          imageSource={book.coverPageUrl}
+          imageSource={bookData.coverPageUrl}
         />
         {/* page view */}
         <GestureDetector gesture={panGesture}>
@@ -871,7 +903,7 @@ export default function StoryReaderScreen() {
       </View>
 
       <View style={styles.pageControls}>
-        <IconButton onPress={handlePreviousPage} disabled={selectedThumbnailIndex === 'cover'}>
+        <IconButton onPress={handlePreviousPage} disabled={selectedThumbnailIndexRef.current === 'cover'}>
           <Feather name="rotate-ccw" size={24} color={Colors.white} />
         </IconButton>
         <IconButton onPress={togglePlayPause}>
@@ -879,7 +911,7 @@ export default function StoryReaderScreen() {
         </IconButton>
         <IconButton
           onPress={handleNextPage}
-          disabled={selectedThumbnailIndex === book.pages.length - 1}
+          disabled={selectedThumbnailIndexRef.current === bookData.pages.length - 1}
         >
           <Feather name="rotate-cw" size={24} color={Colors.white} />
         </IconButton>

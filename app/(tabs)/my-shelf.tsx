@@ -1,11 +1,13 @@
 import { Colors } from '@/constants/Colors';
 import { fetchAudioBooks } from '@/services/service';
 import { styles } from '@/src/styles/my-shelf/styles.module';
+import { getCachedImageSource } from '@/utils/image';
 import { AudioBook } from '@/types/audiobook';
 import { Feather } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { FlatList, ImageBackground, Text, View } from 'react-native';
+import { FlatList, Text, View } from 'react-native';
+import { ImageBackground } from 'expo-image';
 
 export default function LibraryScreen() {
   const [audioBooks, setAudioBooks] = useState<AudioBook[]>([]);
@@ -37,9 +39,11 @@ export default function LibraryScreen() {
         >
           <View style={styles.cardContainer}>
             <ImageBackground
-              source={{ uri: item.coverPageUrl }}
+              source={item.coverPageUrl ? getCachedImageSource(item.coverPageUrl) : null}
               style={styles.coverImageFull}
               imageStyle={styles.coverImageRounded}
+              transition={250}
+              contentFit="cover"
             >
               <View style={styles.overlayBottom}>
                 <Text style={styles.pageBadge}>{item.pageCount} pages</Text>
@@ -78,6 +82,8 @@ export default function LibraryScreen() {
       <ImageBackground
         source={require('../../assets/images/libraryBackground.png')}
         style={styles.imageContainer}
+        contentFit="contain"
+        contentPosition="top"
       >
         <View>
           <Text style={styles.title}>Library</Text>

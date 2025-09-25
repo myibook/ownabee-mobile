@@ -32,10 +32,19 @@ export const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 4,
   },
+  snapOverlay: {
+    position: 'absolute',
+    left: '50%',
+    transform: [{ translateX: -0.5 }],
+    width: 2,
+    height: '100%',
+    backgroundColor: Colors.purple,
+    zIndex: 99,
+  },
   controls: {
     position: 'absolute',
     bottom: 10,
-    right: 130,
+    right: 10,
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 10,
     paddingHorizontal: 15,
@@ -46,6 +55,15 @@ export const styles = StyleSheet.create({
   controlTitle: {
     fontWeight: 'bold',
     marginRight: 10,
+  },
+  controlButton: {
+    padding: 8,
+  },
+  controlDivider: {
+    width: 1,
+    height: "75%",
+    backgroundColor: Colors.quaternaryGray,
+    marginHorizontal: 8,
   },
   styleButton: {
     paddingVertical: 8,

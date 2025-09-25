@@ -289,6 +289,7 @@ export default function CreateVoiceForm({
       {
         options,
         cancelButtonIndex,
+        useModal: true,
         title: 'Select Media Source',
         message: 'Choose where to select your audio/video files from',
       },
@@ -421,6 +422,7 @@ export default function CreateVoiceForm({
         <>
           <TextInput
             placeholder="Name your voice"
+            placeholderTextColor={Colors.quaternaryGray}
             style={styles.input}
             onChangeText={setVoiceName}
             value={voiceName}

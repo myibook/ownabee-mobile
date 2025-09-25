@@ -4,12 +4,8 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   word: {
     fontSize: 14,
-    lineHeight: 14,
     color: Colors.black,
     paddingHorizontal: 0.4,
-  },
-  largeLineHeight: {
-    lineHeight: 24,
   },
   wordWrap: {
     position: 'relative',

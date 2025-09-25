@@ -1311,6 +1311,13 @@
   resolved "https://registry.yarnpkg.com/@floating-ui/utils/-/utils-0.2.10.tgz#a2a1e3812d14525f725d011a73eceb41fef5bc1c"
   integrity sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==
 
+"@gorhom/portal@^1.0.14":
+  version "1.0.14"
+  resolved "https://registry.yarnpkg.com/@gorhom/portal/-/portal-1.0.14.tgz#1953edb76aaba80fb24021dc774550194a18e111"
+  integrity sha512-MXyL4xvCjmgaORr/rtryDNFy3kU4qUbKlwtQqqsygd0xX3mhKjOLn6mQK8wfu0RkoE0pBE0nAasRoHua+/QZ7A==
+  dependencies:
+    nanoid "^3.3.1"
+
 "@humanfs/core@^0.19.1":
   version "0.19.1"
   resolved "https://registry.yarnpkg.com/@humanfs/core/-/core-0.19.1.tgz#17c55ca7d426733fe3c561906b8173c336b40a77"
@@ -3876,7 +3883,7 @@ expo-crypto@~14.1.5:
   dependencies:
     base64-js "^1.3.0"
 
-expo-dev-client@~5.2.1:
+expo-dev-client@~5.2.4:
   version "5.2.4"
   resolved "https://registry.yarnpkg.com/expo-dev-client/-/expo-dev-client-5.2.4.tgz#cdffaea81841b2903cb9585bdd1566dea275a097"
   integrity sha512-s/N/nK5LPo0QZJpV4aPijxyrzV4O49S3dN8D2fljqrX2WwFZzWwFO6dX1elPbTmddxumdcpczsdUPY+Ms8g43g==
@@ -5640,7 +5647,7 @@ mz@^2.7.0:
     object-assign "^4.0.1"
     thenify-all "^1.0.0"
 
-nanoid@^3.3.11, nanoid@^3.3.7:
+nanoid@^3.3.1, nanoid@^3.3.11, nanoid@^3.3.7:
   version "3.3.11"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.11.tgz#4f4f112cefbe303202f2199838128936266d185b"
   integrity sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==

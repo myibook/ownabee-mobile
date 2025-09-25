@@ -125,11 +125,10 @@ export const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   input: {
-    minHeight: 72,
-    maxHeight: 120,
-    fontSize: 26,
-    lineHeight: 32,
-    fontWeight: '600',
+    height: 72,
+    fontSize: 20,
+    lineHeight: 24,
+    fontWeight: '500',
     color: Colors.black,
   },
   footer: { marginTop: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' },
@@ -143,6 +142,7 @@ export const styles = StyleSheet.create({
   },
   settingsIcon: { width: 20, height: 20 },
   rightArea: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  buttonsArea: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   triesText: { color: Colors.silverMedium, fontSize: 15, fontWeight: '500' },
   generateBtn: {
     paddingHorizontal: 16,

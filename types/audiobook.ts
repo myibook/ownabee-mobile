@@ -104,7 +104,8 @@ export type CanvasImageItem = {
   x: number;
   y: number;
   width: number;
-  aspectRatio: number;
+  height?: number;
+  aspectRatio?: number;
   imageUrl?: string;
 };
 

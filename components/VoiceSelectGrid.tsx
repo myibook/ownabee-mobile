@@ -1,9 +1,11 @@
 import { Colors } from '@/constants/Colors';
 import { Voice } from '@/types/voice';
 import { styles } from '@/src/styles/components/voice-select-grid/styles.module';
+import { getCachedImageSource } from '@/utils/image';
 
 import { AntDesign, Feather } from '@expo/vector-icons';
-import { View, Text, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { ImageBackground } from 'expo-image';
 
 export default function VoiceSelectGrid({
   variant,
@@ -47,10 +49,11 @@ export default function VoiceSelectGrid({
             <View>
               {voice.displayImage ? (
                 <ImageBackground
-                  source={{ uri: voice.displayImage }}
+                  source={getCachedImageSource(voice.displayImage)}
                   style={[styles.voiceImage, isSelected && styles.selectedVoiceImage]}
                   imageStyle={styles.image}
-                  resizeMode="cover"
+                  transition={250}
+                  contentFit="cover"
                 />
               ) : (
                 <View
